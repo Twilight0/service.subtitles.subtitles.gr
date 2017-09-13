@@ -17,10 +17,14 @@
 
 # noinspection PyUnresolvedReferences
 import xbmc
+import xbmcaddon
 import urllib, urllib2, urlparse, zipfile, StringIO, re, os
 # noinspection PyUnresolvedReferences
 from tulip import control, client
-import rarfile
+try:
+    import rarfile
+except ImportError:
+    pass
 
 
 class subtitlesgr:
@@ -146,8 +150,17 @@ class subtitlesgr:
                 if len(files) == 0: return
 
                 if f.lower().endswith(('.rar')):
-                    opened_rar = rarfile.RarFile(f)
-                    opened_rar.extractall(path)
+                    try:
+                        opened_rar = rarfile.RarFile(f)
+                        opened_rar.extractall(path)
+	            except:
+                        __addon__ = xbmcaddon.Addon()
+                        __addonname__ = __addon__.getAddonInfo('name')
+                        __icon__ = __addon__.getAddonInfo('icon')
+                        line1 = "Python RAR module not available!!! Please install  python-rarfile: apt-get install python-rarfile"
+                        time = 10000 #in miliseconds
+                        xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__,line1, time, __icon__))
+                        pass
                 else:
                     control.execute('Extract("%s","%s")' % (f, path))
 
