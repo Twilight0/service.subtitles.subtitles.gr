@@ -20,6 +20,7 @@ import xbmc
 import urllib, urlparse, re, os
 # noinspection PyUnresolvedReferences
 from tulip import cache, cleantitle, client, control
+import rarfile
 
 
 class subztvclub:
@@ -138,7 +139,11 @@ class subztvclub:
 
             if len(files) == 0: return
 
-            control.execute('Extract("%s","%s")' % (f, path))
+            if f.lower().endswith(('.rar')):
+                opened_rar = rarfile.RarFile(f)
+                opened_rar.extractall(path)
+            else:
+                control.execute('Extract("%s","%s")' % (f, path))
 
             for i in range(0, 10):
                 try:
