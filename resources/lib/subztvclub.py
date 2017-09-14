@@ -15,20 +15,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-# noinspection PyUnresolvedReferences
+
 import xbmc
 import xbmcaddon
 import urllib, urlparse, re, os
-# noinspection PyUnresolvedReferences
-from tulip import cache, cleantitle, client, control
 
-#Suppress UserWarning: reimporting '_Cryptography_cffi_fc665d23x4f158fee' might overwrite older definitions frok rarfile
+#Suppress UserWarning: reimporting '_Cryptography_cffi_fc665d23x4f158fee' might overwrite older definitions from rarfile
 import warnings
 warnings.simplefilter("ignore", UserWarning)
 
+from tulip import cache, cleantitle, client, control
 from resources.lib import rarfile
 
 class subztvclub:
+
     def __init__(self):
         self.list = []
 
@@ -56,7 +56,7 @@ class subztvclub:
                 for i in url:
                     c = cache.get(self.cache, 2200, i)
 
-                    if not c == None:
+                    if c is not None:
                         if cleantitle.get(c[0]) == cleantitle.get(title) and c[1] == year:
                             try:
                                 item = self.r
@@ -121,6 +121,7 @@ class subztvclub:
         return self.list
 
     def cache(self, i):
+
         try:
             self.r = client.request(i)
             self.r = re.sub(r'[^\x00-\x7F]+', ' ', self.r)
@@ -131,7 +132,9 @@ class subztvclub:
             pass
 
     def download(self, path, url):
+
         try:
+
             result = client.request(url)
 
             f = os.path.splitext(urlparse.urlparse(url).path)[1][1:]
@@ -145,21 +148,19 @@ class subztvclub:
             if len(files) == 0: return
 
             if f.lower().endswith(('.rar')):
+
                 try:
                     opened_rar = rarfile.RarFile(f)
                     opened_rar.extractall(path)
                 except:
-                    __addon__ = xbmcaddon.Addon()
-                    __addonname__ = __addon__.getAddonInfo('name')
-                    __icon__ = __addon__.getAddonInfo('icon')
                     line1 = "RAR file parse error!!!"
-                    time = 3000 #in miliseconds
-                    xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__,line1, time, __icon__))
-                    pass
+                    control.infoDialog(message=line1)
+
             else:
                 control.execute('Extract("%s","%s")' % (f, path))
 
             for i in range(0, 10):
+
                 try:
                     dirs, files = control.listDir(path)
                     if len(files) > 1: break
@@ -175,5 +176,7 @@ class subztvclub:
             subtitle = os.path.join(path, subtitle.decode('utf-8'))
 
             return subtitle
+
         except:
+
             pass

@@ -23,4 +23,3 @@ import sys, urlparse
 syshandle = int(sys.argv[1])
 sysaddon = sys.argv[0]
 params = dict(urlparse.parse_qsl(sys.argv[2].replace('?','')))
-
