@@ -21,12 +21,7 @@ import xbmcaddon
 import urllib, urlparse, re, os
 # noinspection PyUnresolvedReferences
 from tulip import cache, cleantitle, client, control
-try:
-    import rarfile
-except ImportError:
-    pass
-
-
+from resources.lib import rarfile
 
 class subztvclub:
     def __init__(self):
@@ -152,8 +147,8 @@ class subztvclub:
                     __addon__ = xbmcaddon.Addon()
                     __addonname__ = __addon__.getAddonInfo('name')
                     __icon__ = __addon__.getAddonInfo('icon')
-                    line1 = "Python RAR module not available!!! Please install  python-rarfile: apt-get install python-rarfile"
-                    time = 10000 #in miliseconds
+                    line1 = "RAR file parse error!!!"
+                    time = 3000 #in miliseconds
                     xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__,line1, time, __icon__))
                     pass
             else:
