@@ -21,6 +21,11 @@ import xbmcaddon
 import urllib, urlparse, re, os
 # noinspection PyUnresolvedReferences
 from tulip import cache, cleantitle, client, control
+
+#Suppress UserWarning: reimporting '_Cryptography_cffi_fc665d23x4f158fee' might overwrite older definitions frok rarfile
+import warnings
+warnings.simplefilter("ignore", UserWarning)
+
 from resources.lib import rarfile
 
 class subztvclub:
