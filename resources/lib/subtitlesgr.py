@@ -15,18 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-# noinspection PyUnresolvedReferences
-import xbmc
-import xbmcaddon
 import urllib, urllib2, urlparse, zipfile, StringIO, re, os
-# noinspection PyUnresolvedReferences
 from tulip import control, client
 
-#Suppress UserWarning: reimporting '_Cryptography_cffi_fc665d23x4f158fee' might overwrite older definitions frok rarfile
-import warnings
-warnings.simplefilter("ignore", UserWarning)
-
-from resources.lib import rarfile
 
 class subtitlesgr:
 
@@ -125,6 +116,7 @@ class subtitlesgr:
             rar = [i for i in files if any(i.endswith(x) for x in ['.rar', '.zip'])]
 
             if len(srt) > 0:
+
                 result = zip_file.open(srt[0]).read()
 
                 subtitle = os.path.basename(srt[0])
@@ -137,6 +129,7 @@ class subtitlesgr:
                 return subtitle
 
             elif len(rar) > 0:
+
                 result = zip_file.open(rar[0]).read()
 
                 f = os.path.splitext(urlparse.urlparse(rar[0]).path)[1][1:]
@@ -151,12 +144,13 @@ class subtitlesgr:
 
                 if f.lower().endswith('.rar'):
 
-                    try:
-                        opened_rar = rarfile.RarFile(f)
-                        opened_rar.extractall(path)
-                    except:
-                        line1 = "RAR file parse error!!!"
-                        control.infoDialog(message=line1)
+                    uri = "rar://[%s]/%s.srt" % (f, url.rpartition('/')[2][:-4])
+                    content = control.openFile(uri).read()
+                    subtitle = control.transPath('special://temp/') + url.rpartition('/')[2][:-4] + '.srt'
+                    with open(subtitle, 'wb') as subFile:
+                        subFile.write(content)
+
+                    return subtitle
 
                 else:
                     control.execute('Extract("%s","%s")' % (f, path))
@@ -166,7 +160,7 @@ class subtitlesgr:
                     try:
                         dirs, files = control.listDir(path)
                         if len(files) > 1: break
-                        if xbmc.abortRequested is True:
+                        if control.aborted is True:
                             break
                         control.sleep(1000)
                     except:

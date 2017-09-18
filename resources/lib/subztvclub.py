@@ -15,17 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-
-import xbmc
-import xbmcaddon
 import urllib, urlparse, re, os
-
-#Suppress UserWarning: reimporting '_Cryptography_cffi_fc665d23x4f158fee' might overwrite older definitions from rarfile
-import warnings
-warnings.simplefilter("ignore", UserWarning)
-
 from tulip import cache, cleantitle, client, control
-from resources.lib import rarfile
+
 
 class subztvclub:
 
@@ -87,9 +79,9 @@ class subztvclub:
                 for i in url:
                     c = cache.get(self.cache, 2200, i)
 
-                    if not c == None:
+                    if c is not None:
                         if cleantitle.get(c[0]) == cleantitle.get(title):
-                            item = i;
+                            item = i
                             break
 
                 item = '%s/seasons/%s/episodes/%s' % (item, season, episode)
@@ -145,16 +137,18 @@ class subztvclub:
 
             dirs, files = control.listDir(path)
 
-            if len(files) == 0: return
+            if len(files) == 0:
+                return
 
             if f.lower().endswith(('.rar')):
 
-                try:
-                    opened_rar = rarfile.RarFile(f)
-                    opened_rar.extractall(path)
-                except:
-                    line1 = "RAR file parse error!!!"
-                    control.infoDialog(message=line1)
+                uri = "rar://[%s]/%s.srt" % (f, url.rpartition('/')[2][:-4])
+                content = control.openFile(uri).read()
+                subtitle = control.transPath('special://temp/') + url.rpartition('/')[2][:-4] + '.srt'
+                with open(subtitle, 'wb') as subFile:
+                    subFile.write(content)
+
+                return subtitle
 
             else:
                 control.execute('Extract("%s","%s")' % (f, path))
@@ -163,8 +157,10 @@ class subztvclub:
 
                 try:
                     dirs, files = control.listDir(path)
-                    if len(files) > 1: break
-                    if xbmc.abortRequested == True: break
+                    if len(files) > 1:
+                        break
+                    if control.aborted is True:
+                        break
                     control.sleep(1000)
                 except:
                     pass
