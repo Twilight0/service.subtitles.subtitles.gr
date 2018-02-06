@@ -15,11 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import urllib, urlparse, re, os
+import urllib, re, os
+from urlparse import urljoin
 from tulip import cache, cleantitle, client, control
 
 
-class subztvclub:
+class subzxyz:
     def __init__(self):
         self.list = []
 
@@ -33,7 +34,7 @@ class subztvclub:
 
                 query = ' '.join(urllib.unquote_plus(re.sub('%\w\w', ' ', urllib.quote_plus(title))).split())
 
-                url = 'http://subztv.club/search?q=%s' % urllib.quote_plus(query)
+                url = 'http://subz.xyz/search?q=%s' % urllib.quote_plus(query)
 
                 result = client.request(url)
                 result = re.sub(r'[^\x00-\x7F]+', ' ', result)
@@ -41,7 +42,7 @@ class subztvclub:
                 url = client.parseDOM(result, 'div', attrs={'id': 'movies'})[0]
                 url = re.findall('(/movies/\d+)', url)
                 url = [x for y, x in enumerate(url) if x not in url[:y]]
-                url = [urlparse.urljoin('http://subztv.club', i) for i in url]
+                url = [urljoin('http://subz.xyz', i) for i in url]
                 url = url[:3]
 
                 for i in url:
@@ -64,7 +65,7 @@ class subztvclub:
 
                 query = ' '.join(urllib.unquote_plus(re.sub('%\w\w', ' ', urllib.quote_plus(title))).split())
 
-                url = 'http://subztv.club/search?q=%s' % urllib.quote_plus(query)
+                url = 'http://subz.xyz/search?q=%s' % urllib.quote_plus(query)
 
                 result = client.request(url)
                 result = re.sub(r'[^\x00-\x7F]+', ' ', result)
@@ -72,7 +73,7 @@ class subztvclub:
                 url = client.parseDOM(result, 'div', attrs={'id': 'series'})[0]
                 url = re.findall('(/series/\d+)', url)
                 url = [x for y, x in enumerate(url) if x not in url[:y]]
-                url = [urlparse.urljoin('http://subztv.club', i) for i in url]
+                url = [urljoin('http://subz.xyz', i) for i in url]
                 url = url[:3]
 
                 for i in url:
@@ -105,7 +106,7 @@ class subztvclub:
                 url = client.replaceHTMLCodes(url)
                 url = url.encode('utf-8')
 
-                self.list.append({'name': name, 'url': url, 'source': 'subztvclub', 'rating': 5})
+                self.list.append({'name': name, 'url': url, 'source': 'subzxyz', 'rating': 5})
             except:
                 pass
 

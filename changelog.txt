@@ -1,3 +1,7 @@
+[B]1.4.0[/B]
+- Replaced subztv.club with subz.xyz
+- Minor rework of the addon
+
 [B]1.3.1[/B]
 - Fix for url encoder on Unix-like platforms
 - Cosmetics
