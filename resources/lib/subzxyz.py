@@ -34,15 +34,15 @@ class subzxyz:
 
                 query = ' '.join(urllib.unquote_plus(re.sub('%\w\w', ' ', urllib.quote_plus(title))).split())
 
-                url = 'http://subz.xyz/search?q=%s' % urllib.quote_plus(query)
+                url = 'https://subz.xyz/search?q=%s' % urllib.quote_plus(query)
 
                 result = client.request(url)
                 result = re.sub(r'[^\x00-\x7F]+', ' ', result)
 
-                url = client.parseDOM(result, 'div', attrs={'id': 'movies'})[0]
+                url = client.parseDOM(result, 'section', attrs={'class': 'movies'})[0]
                 url = re.findall('(/movies/\d+)', url)
                 url = [x for y, x in enumerate(url) if x not in url[:y]]
-                url = [urljoin('http://subz.xyz', i) for i in url]
+                url = [urljoin('https://subz.xyz', i) for i in url]
                 url = url[:3]
 
                 for i in url:
@@ -65,15 +65,15 @@ class subzxyz:
 
                 query = ' '.join(urllib.unquote_plus(re.sub('%\w\w', ' ', urllib.quote_plus(title))).split())
 
-                url = 'http://subz.xyz/search?q=%s' % urllib.quote_plus(query)
+                url = 'https://subz.xyz/search?q=%s' % urllib.quote_plus(query)
 
                 result = client.request(url)
                 result = re.sub(r'[^\x00-\x7F]+', ' ', result)
 
-                url = client.parseDOM(result, 'div', attrs={'id': 'series'})[0]
+                url = client.parseDOM(result, 'section', attrs={'class': 'tvshows'})[0]
                 url = re.findall('(/series/\d+)', url)
                 url = [x for y, x in enumerate(url) if x not in url[:y]]
-                url = [urljoin('http://subz.xyz', i) for i in url]
+                url = [urljoin('https://subz.xyz', i) for i in url]
                 url = url[:3]
 
                 for i in url:
@@ -88,23 +88,24 @@ class subzxyz:
                 item = client.request(item)
 
             item = re.sub(r'[^\x00-\x7F]+', ' ', item)
-            items = client.parseDOM(item, 'tr', attrs={'data-id': '\d+'})
+            items = client.parseDOM(item, 'tr', attrs={'data-id': '.+?'})
         except:
             return
 
         for item in items:
             try:
-                if not 'img/el.png' in item: raise Exception()
 
-                name = client.parseDOM(item, 'td', attrs={'class': '.+?'})[-1]
-                name = name.split('>')[-1].strip()
+                r = client.parseDOM(item, 'td', attrs={'class': '.+?'})[-1]
+
+                url = client.parseDOM(r, 'a', ret='href')[0]
+                url = client.replaceHTMLCodes(url)
+                url = url.replace("'","").encode('utf-8')
+                
+                name = url.split('/')[-1].strip()
                 name = re.sub('\s\s+', ' ', name)
+                name = name.replace('_','').replace('%20','.')
                 name = client.replaceHTMLCodes(name)
                 name = name.encode('utf-8')
-
-                url = re.findall('\'(http(?:s|)\://.+?)\'', item)[-1]
-                url = client.replaceHTMLCodes(url)
-                url = url.encode('utf-8')
 
                 self.list.append({'name': name, 'url': url, 'source': 'subzxyz', 'rating': 5})
             except:
