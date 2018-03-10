@@ -1,3 +1,6 @@
+[B]1.4.1[/B]
+- Fixed subz.xyz
+
 [B]1.4.0[/B]
 - Replaced subztv.club with subz.xyz
 - Minor rework of the addon
