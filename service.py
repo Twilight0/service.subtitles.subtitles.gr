@@ -16,7 +16,7 @@
 '''
 
 
-from resources.lib.init import action, query, url, source
+from resources.lib.tools import action, query, url, source
 from resources.lib.addon import Search, Download
 
 ########################################################################################################################

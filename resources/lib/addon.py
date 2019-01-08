@@ -21,9 +21,8 @@
 from xbmc import getCleanMovieTitle
 
 import re
-
 from resources.lib import subtitlesgr, xsubstv, subzxyz
-from resources.lib.init import syshandle, sysaddon, langs
+from resources.lib.tools import syshandle, sysaddon, langs
 
 from tulip import control, workers
 from tulip.compat import urlencode
@@ -55,6 +54,7 @@ class Search:
             title = control.infoLabel('{0}.Title'.format(infolabel_prefix))
 
             if re.search(r'[^\x00-\x7F]+', title) is not None:
+
                 title = control.infoLabel('{0}.OriginalTitle'.format(infolabel_prefix))
 
             year = control.infoLabel('{0}.Year'.format(infolabel_prefix))
@@ -63,18 +63,27 @@ class Search:
 
             season = control.infoLabel('{0}.Season'.format(infolabel_prefix))
 
+            if len(season) == 1:
+                season = '0' + season
+
             episode = control.infoLabel('{0}.Episode'.format(infolabel_prefix))
+
+            if len(episode) == 1:
+                episode = '0' + episode
 
             if 's' in episode.lower():
                 season, episode = '0', episode[-1:]
 
-            if not tvshowtitle == '':  # episode
-                query = '{0} S{1}E{2}'.format(tvshowtitle, season, episode)
-            elif not year == '':  # movie
+            if tvshowtitle != '':  # episode
+                if title:
+                    query = '{0} {1}'.format(tvshowtitle, title)
+                else:
+                    query = '{0} S{1} E{2}'.format(tvshowtitle, season, episode)
+            elif year != '':  # movie
                 query = '{0} ({1})'.format(title, year)
             else:  # file
                 query, year = getCleanMovieTitle(title)
-                if not year == '':
+                if year != '':
                     query = '{0} ({1})'.format(query, year)
 
         self.query = query
@@ -139,15 +148,24 @@ class Search:
 
     def subtitlesgr(self):
 
-        self.list.extend(subtitlesgr.subtitlesgr().get(self.query))
+        try:
+            self.list.extend(subtitlesgr.subtitlesgr().get(self.query))
+        except TypeError:
+            pass
 
     def xsubstv(self):
 
-        self.list.extend(xsubstv.xsubstv().get(self.query))
+        try:
+            self.list.extend(xsubstv.xsubstv().get(self.query))
+        except TypeError:
+            pass
 
     def subzxyz(self):
 
-        self.list.extend(subzxyz.subzxyz().get(self.query))
+        try:
+            self.list.extend(subzxyz.subzxyz().get(self.query))
+        except TypeError:
+            pass
 
 
 class Download:
@@ -159,7 +177,11 @@ class Download:
     def run(self, url, source):
 
         path = control.join(control.dataPath, 'temp')
-        path = path.decode('utf-8')
+
+        try:
+            path = path.decode('utf-8')
+        except Exception:
+            pass
 
         control.deleteDir(control.join(path, ''), force=True)
 

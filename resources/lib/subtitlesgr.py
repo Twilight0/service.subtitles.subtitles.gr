@@ -16,9 +16,9 @@
 '''
 
 from xbmcvfs import File as openFile
-from random import choice
-from os.path import split
-import zipfile, re, os, shutil
+from os.path import basename, split as os_split
+from resources.lib.tools import multichoice
+import zipfile, re
 from tulip import control, client
 from tulip.compat import unquote_plus, quote_plus, StringIO, urlopen, quote
 
@@ -126,14 +126,20 @@ class subtitlesgr:
             zip_file = zipfile.ZipFile(StringIO(data))
             files = zip_file.namelist()
             files = [i for i in files if i.startswith('subs/')]
-            srt = [i for i in files if any(i.endswith(x) for x in ['.srt', '.sub'])]
-            rar = [i for i in files if any(i.endswith(x) for x in ['.rar', '.zip'])]
+
+            srt = [i for i in files if i.endswith(('.srt', '.sub'))]
+            archive = [i for i in files if i.endswith(('.rar', '.zip'))]
 
             if len(srt) > 0:
 
-                result = zip_file.open(srt[0]).read()
+                if len(srt) > 1:
+                    srt = multichoice(srt)
+                else:
+                    srt = srt[0]
 
-                subtitle = os.path.basename(srt[0])
+                result = zip_file.open(srt).read()
+
+                subtitle = basename(srt)
 
                 try:
                     subtitle = control.join(path, subtitle.decode('utf-8'))
@@ -145,12 +151,16 @@ class subtitlesgr:
 
                 return subtitle
 
-            elif len(rar) > 0:
+            elif len(archive) > 0:
 
-                result = zip_file.open(rar[0]).read()
+                if len(archive) > 1:
+                    archive = multichoice(archive)
+                else:
+                    archive = archive[0]
 
-                # f = os.path.splitext(urlparse.urlparse(url).path)[1][1:]
-                f = control.join(path, url.rpartition('/')[2])
+                result = zip_file.open(archive).read()
+
+                f = control.join(path, os_split(url)[1])
 
                 with open(f, 'wb') as subFile:
                     subFile.write(result)
@@ -160,10 +170,11 @@ class subtitlesgr:
                 if len(files) == 0:
                     return
 
-                if not f.lower().endswith('.rar'):
+                if zipfile.is_zipfile(f):
+
                     control.execute('Extract("{0}","{0}")'.format(f, path))
 
-                if f.lower().endswith('.rar'):
+                if not zipfile.is_zipfile(f):
 
                     if control.infoLabel('System.Platform.Windows'):
                         uri = "rar://{0}/".format(quote(f))
@@ -176,11 +187,11 @@ class subtitlesgr:
 
                     dirs, files = control.listDir(path)
 
-                if dirs:
+                if dirs and not zipfile.is_zipfile(f):
 
                     for dir in dirs:
 
-                        _dirs, _files = control.listDir(control.join(uri if f.lower().endswith('.rar') else path, dir))
+                        _dirs, _files = control.listDir(control.join(uri, dir))
 
                         [files.append(control.join(dir, i)) for i in _files]
 
@@ -190,31 +201,14 @@ class subtitlesgr:
                                 _dir = control.join(_dir, dir)
 
                                 __dirs, __files = control.listDir(
-                                    control.join(uri if f.lower().endswith('.rar') else path, _dir)
+                                    control.join(uri, _dir)
                                 )
 
                                 [files.append(control.join(_dir, i)) for i in __files]
 
                 filenames = [i for i in files if i.endswith(('.srt', '.sub'))]
 
-                if len(filenames) == 1:
-
-                    filename = filenames[0]
-
-                else:
-
-                    choices = [split(i)[1] for i in filenames]
-
-                    choices.insert(0, control.lang(32215))
-
-                    _choice = control.selectDialog(heading=control.lang(32214), list=choices)
-
-                    if _choice == 0:
-                        filename = choice(filenames)
-                    elif _choice != -1 and _choice <= len(filenames) + 1:
-                        filename = filenames[_choice - 1]
-                    else:
-                        filename = choice(filenames)
+                filename = multichoice(filenames)
 
                 try:
 
@@ -224,33 +218,21 @@ class subtitlesgr:
 
                     pass
 
-                if not control.exists(control.join(path, split(filename)[0])):
-                    control.makeFiles(control.join(path, split(filename)[0]))
+                if not control.exists(control.join(path, os_split(filename)[0])) and not zipfile.is_zipfile(f):
+                    control.makeFiles(control.join(path, os_split(filename)[0]))
 
                 subtitle = control.join(path, filename)
 
-                if f.lower().endswith('.rar'):
+                if not zipfile.is_zipfile(f):
 
                     content = openFile(uri + filename).read()
 
                     with open(subtitle, 'wb') as subFile:
                         subFile.write(content)
 
-                    output = control.transPath(control.join('special://temp', split(filename)[1]))
-
-                    shutil.move(subtitle, output)
-
-                    shutil.rmtree(control.join(control.dataPath, 'temp'))
-
-                    return output
+                    return subtitle
 
                 else:
-
-                    output = control.transPath(control.join('special://temp', filename))
-
-                    shutil.move(subtitle, output)
-
-                    shutil.rmtree(control.join(control.dataPath, 'temp'))
 
                     return subtitle
 

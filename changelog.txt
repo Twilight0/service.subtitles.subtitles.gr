@@ -1,4 +1,10 @@
-[B]1.5.X[/B]
+[B]1.5.3[/B]
+- Improved subtitle search for tv shows
+- Improved handling of subtitles choice on multisubs archives
+- Boolean check of archive format with is_zipfile instead of endswith
+- Various other tweaks
+
+[B]1.5.0 - 1.5.2[/B]
 - Fixed subz.xyz (by not loading the xbmcvfs module through kodi_six)
 - Subtitles search can also be performed via listitem query (useful when searching via context menu)
 - Tweaked string formatting on all modules

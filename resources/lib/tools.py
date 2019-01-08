@@ -19,6 +19,9 @@
 '''
 
 import sys
+from random import choice
+from os.path import split as os_split
+from tulip import control
 from tulip.compat import parse_qsl
 
 syshandle = int(sys.argv[1])
@@ -30,3 +33,33 @@ source = params.get('source')
 url = params.get('url')
 query = params.get('searchstring')
 langs = params.get('languages')
+
+
+def multichoice(filenames):
+
+    if len(filenames) == 0:
+
+        return
+
+    elif len(filenames) == 1:
+
+        filename = filenames[0]
+
+        return filename
+
+    else:
+
+        choices = [os_split(i)[1] for i in filenames]
+
+        choices.insert(0, control.lang(32215))
+
+        _choice = control.selectDialog(heading=control.lang(32214), list=choices)
+
+        if _choice == 0:
+            filename = choice(filenames)
+        elif _choice != -1 and _choice <= len(filenames) + 1:
+            filename = filenames[_choice - 1]
+        else:
+            filename = choice(filenames)
+
+        return filename
