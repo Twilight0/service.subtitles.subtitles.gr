@@ -173,12 +173,13 @@ class subzxyz:
                     if _dirs:
 
                         for _dir in _dirs:
+                            _dir = control.join(_dir, dir)
 
-                            _dir += dir
+                            __dirs, __files = control.listDir(
+                                control.join(uri if f.lower().endswith('.rar') else path, _dir)
+                            )
 
-                            __dirs, __files = control.listDir(control.join(uri if f.lower().endswith('.rar') else path, _dir))
-
-                            [files.append(control.join(dir, i)) for i in __files]
+                            [files.append(control.join(_dir, i)) for i in __files]
 
             filenames = [i for i in files if i.endswith(('.srt', '.sub'))]
 
