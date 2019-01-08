@@ -20,70 +20,73 @@
 
 from xbmc import getCleanMovieTitle
 
-import urllib, re, os
+import re
 
-import subtitlesgr
-import xsubstv
-import subzxyz
-
-from resources.lib import syshandle, sysaddon,langs
+from resources.lib import subtitlesgr, xsubstv, subzxyz
+from resources.lib.init import syshandle, sysaddon, langs
 
 from tulip import control, workers
+from tulip.compat import urlencode
 
 
 class Search:
 
     def __init__(self):
 
+        self.query = None
         self.list = []
 
     def run(self, query=None):
 
         if not 'Greek' in str(langs).split(','):
+
             control.directory(syshandle)
-            control.infoDialog(control.lang(32002).encode('utf-8'))
+            control.infoDialog(control.lang(32002))
+
             return
 
         if query is None:
 
-            title = control.infoLabel('VideoPlayer.Title')
+            if control.condVisibility('Player.HasVideo'):
+                infolabel_prefix = 'VideoPlayer'
+            else:
+                infolabel_prefix = 'ListItem'
+
+            title = control.infoLabel('{0}.Title'.format(infolabel_prefix))
 
             if re.search(r'[^\x00-\x7F]+', title) is not None:
-                title = control.infoLabel('VideoPlayer.OriginalTitle')
+                title = control.infoLabel('{0}.OriginalTitle'.format(infolabel_prefix))
 
-            year = control.infoLabel('VideoPlayer.Year')
+            year = control.infoLabel('{0}.Year'.format(infolabel_prefix))
 
-            tvshowtitle = control.infoLabel('VideoPlayer.TVshowtitle')
+            tvshowtitle = control.infoLabel('{0}.TVshowtitle'.format(infolabel_prefix))
 
-            season = control.infoLabel('VideoPlayer.Season')
+            season = control.infoLabel('{0}.Season'.format(infolabel_prefix))
 
-            episode = control.infoLabel('VideoPlayer.Episode')
+            episode = control.infoLabel('{0}.Episode'.format(infolabel_prefix))
 
             if 's' in episode.lower():
                 season, episode = '0', episode[-1:]
 
             if not tvshowtitle == '':  # episode
-                query = '%s S%02dE%02d' % (tvshowtitle, int(season), int(episode))
+                query = '{0} S{1}E{2}'.format(tvshowtitle, season, episode)
             elif not year == '':  # movie
-                query = '%s (%s)' % (title, year)
+                query = '{0} ({1})'.format(title, year)
             else:  # file
                 query, year = getCleanMovieTitle(title)
-                if not year == '': query = '%s (%s)' % (query, year)
+                if not year == '':
+                    query = '{0} ({1})'.format(query, year)
 
         self.query = query
 
-        threads = []
-
-        threads.append(workers.Thread(self.xsubstv))
-        threads.append(workers.Thread(self.subzxyz))
-        threads.append(workers.Thread(self.subtitlesgr))
+        threads = [workers.Thread(self.xsubstv), workers.Thread(self.subzxyz), workers.Thread(self.subtitlesgr)]
 
         [i.start() for i in threads]
 
         for i in range(0, 10 * 2):
             try:
                 is_alive = [x.is_alive() for x in threads]
-                if all(x == False for x in is_alive):
+                if all(x is False for x in is_alive):
                     break
                 if control.aborted is True:
                     break
@@ -107,37 +110,43 @@ class Search:
 
             try:
                 if i['source'] == 'subzxyz':
-                    i['name'] = '[subzxyz] %s' % i['name']
+                    i['name'] = '[subzxyz] {0}'.format(i['name'])
                 elif i['source'] == 'xsubstv':
-                    i['name'] = '[xsubstv] %s' % i['name']
+                    i['name'] = '[xsubstv] {0}'.format(i['name'])
             except:
                 pass
 
         for i in self.list:
 
             try:
+
                 name, url, source, rating = i['name'], i['url'], i['source'], i['rating']
 
                 u = {'action': 'download', 'url': url, 'source': source}
-                u = '%s?%s' % (sysaddon, urllib.urlencode(u))
+                u = '{0}?{1}'.format(sysaddon, urlencode(u))
 
                 item = control.item(label='Greek', label2=name, iconImage=str(rating), thumbnailImage='el')
                 item.setProperty('sync', 'false')
                 item.setProperty('hearing_imp', 'false')
 
                 control.addItem(handle=syshandle, url=u, listitem=item, isFolder=False)
-            except:
+
+            except Exception:
+
                 pass
 
         control.directory(syshandle)
 
     def subtitlesgr(self):
+
         self.list.extend(subtitlesgr.subtitlesgr().get(self.query))
 
     def xsubstv(self):
+
         self.list.extend(xsubstv.xsubstv().get(self.query))
 
     def subzxyz(self):
+
         self.list.extend(subzxyz.subzxyz().get(self.query))
 
 
@@ -149,10 +158,10 @@ class Download:
 
     def run(self, url, source):
 
-        path = os.path.join(control.dataPath, 'temp')
+        path = control.join(control.dataPath, 'temp')
         path = path.decode('utf-8')
 
-        control.deleteDir(os.path.join(path, ''), force=True)
+        control.deleteDir(control.join(path, ''), force=True)
 
         control.makeFile(control.dataPath)
 
@@ -179,6 +188,7 @@ class Download:
             subtitle = None
 
         if subtitle is not None:
+
             item = control.item(label=subtitle)
             control.addItem(handle=syshandle, url=subtitle, listitem=item, isFolder=False)
 

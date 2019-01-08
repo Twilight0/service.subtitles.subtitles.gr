@@ -27,3 +27,11 @@ msgstr ""
 msgctxt "#32213"
 msgid "Password"
 msgstr ""
+
+msgctxt "#32214"
+msgid "Package contains multiple subtitles"
+msgstr ""
+
+msgctxt "#32215"
+msgid "Random choice"
+msgstr ""

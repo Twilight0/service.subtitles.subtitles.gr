@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import urllib, re, os
-
+import re
+from tulip.compat import urlencode
 from tulip import cache, cleantitle, client, control
 
 
@@ -34,7 +34,7 @@ class xsubstv:
 
             title, season, episode = re.findall('(.+?) S(\d+)E(\d+)$', query)[0]
 
-            season, episode = '%01d' % int(season), '%02d' % int(episode)
+            season, episode = '{0}'.format(season), '{0}'.format(episode)
 
             title = re.sub('^THE\s+|^A\s+', '', title.strip().upper())
             title = cleantitle.get(title)
@@ -44,12 +44,12 @@ class xsubstv:
             srsid = cache.get(self.cache, 48, url)
             srsid = [i[0] for i in srsid if title == i[1]][0]
 
-            url = 'http://www.xsubs.tv/series/%s/main.xml' % srsid
+            url = 'http://www.xsubs.tv/series/{0}/main.xml'.format(srsid)
 
             result = client.request(url)
             ssnid = client.parseDOM(result, 'series_group', ret='ssnid', attrs={'ssnnum': season})[0]
 
-            url = 'http://www.xsubs.tv/series/%s/%s.xml' % (srsid, ssnid)
+            url = 'http://www.xsubs.tv/series/{0}/{1}.xml'.format(srsid, ssnid)
 
             result = client.request(url)
 
@@ -67,23 +67,24 @@ class xsubstv:
             try:
 
                 p = client.parseDOM(item, 'sr', ret='published_on')[0]
-                if p == '': raise Exception()
+                if p == '':
+                    raise Exception
 
                 name = client.parseDOM(item, 'sr')[0]
                 name = name.rsplit('<hits>', 1)[0]
                 name = re.sub('</.+?><.+?>|<.+?>', ' ', name).strip()
-                name = '%s %s' % (query, name)
+                name = '{0} {1}'.format(query, name)
                 name = client.replaceHTMLCodes(name)
                 name = name.encode('utf-8')
 
                 url = client.parseDOM(item, 'sr', ret='rlsid')[0]
-                url = 'http://www.xsubs.tv/xthru/getsub/%s' % url
+                url = 'http://www.xsubs.tv/xthru/getsub/{0}'.format(url)
                 url = client.replaceHTMLCodes(url)
                 url = url.encode('utf-8')
 
                 self.list.append({'name': name, 'url': url, 'source': 'xsubstv', 'rating': 5})
 
-            except:
+            except Exception:
 
                 pass
 
@@ -114,10 +115,10 @@ class xsubstv:
             token = client.request(login)
             token = client.parseDOM(token, 'input', ret='value', attrs={'name': 'csrfmiddlewaretoken'})[0]
 
-            headers = {'Cookie': 'csrftoken=%s' % token}
+            headers = {'Cookie': 'csrftoken={0}'.format(token)}
 
             post = {'username': self.user, 'password': self.password, 'csrfmiddlewaretoken': token, 'next': ''}
-            post = urllib.urlencode(post)
+            post = urlencode(post)
 
             c = client.request(login, post=post, headers=headers, output='cookie')
 
@@ -147,7 +148,7 @@ class xsubstv:
             subtitle = content['Content-Disposition']
             subtitle = re.findall('"(.+?)"', subtitle)[0]
 
-            subtitle = os.path.join(path, subtitle.decode('utf-8'))
+            subtitle = control.join(path, subtitle.decode('utf-8'))
 
             if not subtitle.endswith('.srt'):
                 raise Exception()

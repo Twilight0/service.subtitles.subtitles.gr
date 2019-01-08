@@ -27,3 +27,11 @@ msgstr "Χρήστης"
 msgctxt "#32213"
 msgid "Password"
 msgstr "Κωδικός"
+
+msgctxt "#32214"
+msgid "Package contains multiple subtitles"
+msgstr "Το πακέτο περιέχει πολλαπλούς υποτίτλους"
+
+msgctxt "#32215"
+msgid "Random choice"
+msgstr "Τυχαία επιλογή"

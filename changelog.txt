@@ -1,3 +1,12 @@
+[B]1.5.0[/B]
+- Fixed subz.xyz
+- Subtitles search can also be performed via listitem query (useful when searching via context menu)
+- Tweaked string formatting on all modules
+- Utilize kodi_six (except xbmcvfs module, which caused issues on opening rar archives)
+- Added Python 3 compatibility (not yet tested)
+- Implemented capability to select subtitle from rar archives that have multiple subtitles (up to second subdirectory level)
+- Bump dependencies
+
 [B]1.4.1[/B]
 - Fixed subz.xyz
 

@@ -15,23 +15,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import urllib, urllib2, zipfile, StringIO, re, os
+from xbmcvfs import File as openFile
+from random import choice
+from os.path import split
+import zipfile, re, os, shutil
 from tulip import control, client
+from tulip.compat import unquote_plus, quote_plus, StringIO, urlopen, quote
 
 
 class subtitlesgr:
 
     def __init__(self):
+
         self.list = []
 
     def get(self, query):
 
         try:
-            filtered = ['freeprojectx', 'subs4series', 'Εργαστήρι Υποτίτλων'.decode('utf-8')]
 
-            query = ' '.join(urllib.unquote_plus(re.sub('%\w\w', ' ', urllib.quote_plus(query))).split())
+            filtered = ['freeprojectx', 'subs4series', u'Εργαστήρι Υποτίτλων']
 
-            url = 'http://www.subtitles.gr/search.php?name={0}&sort=downloads+desc'.format(urllib.quote_plus(query))
+            query = ' '.join(unquote_plus(re.sub('%\w\w', ' ', quote_plus(query))).split())
+
+            url = 'http://www.subtitles.gr/search.php?name={0}&sort=downloads+desc'.format(quote_plus(query))
 
             result = client.request(url)
 
@@ -69,7 +75,7 @@ class subtitlesgr:
 
                 name = client.parseDOM(item, 'a', attrs={'onclick': 'runme.+?'})[0]
                 name = ' '.join(re.sub('<.+?>', '', name).split())
-                name = '[%s] %s [%s DLs]' % (uploader, name, downloads)
+                name = '[{0}] {1} [{2} DLs]'.format(uploader, name, downloads)
                 name = client.replaceHTMLCodes(name)
                 name = name.encode('utf-8')
 
@@ -113,11 +119,11 @@ class subtitlesgr:
         try:
 
             url = re.findall('/(\d+)/', url + '/', re.I)[-1]
-            url = 'http://www.greeksubtitles.info/getp.php?id=%s' % url
+            url = 'http://www.greeksubtitles.info/getp.php?id={0}'.format(url)
             url = client.request(url, output='geturl')
 
-            data = urllib2.urlopen(url, timeout=10).read()
-            zip_file = zipfile.ZipFile(StringIO.StringIO(data))
+            data = urlopen(url, timeout=10).read()
+            zip_file = zipfile.ZipFile(StringIO(data))
             files = zip_file.namelist()
             files = [i for i in files if i.startswith('subs/')]
             srt = [i for i in files if any(i.endswith(x) for x in ['.srt', '.sub'])]
@@ -129,7 +135,10 @@ class subtitlesgr:
 
                 subtitle = os.path.basename(srt[0])
 
-                subtitle = os.path.join(path, subtitle.decode('utf-8'))
+                try:
+                    subtitle = control.join(path, subtitle.decode('utf-8'))
+                except Exception:
+                    subtitle = control.join(path, subtitle)
 
                 with open(subtitle, 'wb') as subFile:
                     subFile.write(result)
@@ -141,7 +150,7 @@ class subtitlesgr:
                 result = zip_file.open(rar[0]).read()
 
                 # f = os.path.splitext(urlparse.urlparse(url).path)[1][1:]
-                f = os.path.join(path, url.rpartition('/')[2])
+                f = control.join(path, url.rpartition('/')[2])
 
                 with open(f, 'wb') as subFile:
                     subFile.write(result)
@@ -152,51 +161,98 @@ class subtitlesgr:
                     return
 
                 if not f.lower().endswith('.rar'):
-                    control.execute('Extract("%s","%s")' % (f, path))
-
-                if control.infoLabel('System.Platform.Windows'):
-                    conversion = urllib.quote
-                else:
-                    conversion = urllib.quote_plus
+                    control.execute('Extract("{0}","{0}")'.format(f, path))
 
                 if f.lower().endswith('.rar'):
 
-                    uri = "rar://{0}/".format(conversion(f))
+                    if control.infoLabel('System.Platform.Windows'):
+                        uri = "rar://{0}/".format(quote(f))
+                    else:
+                        uri = "rar://{0}/".format(quote_plus(f))
+
                     dirs, files = control.listDir(uri)
 
                 else:
 
-                    for i in range(0, 10):
+                    dirs, files = control.listDir(path)
 
-                        try:
-                            dirs, files = control.listDir(path)
-                            if len(files) > 1:
-                                break
-                            if control.aborted is True:
-                                break
-                            control.wait(1)
-                        except:
-                            pass
+                if dirs:
 
-                filename = [i for i in files if any(i.endswith(x) for x in ['.srt', '.sub'])][0].decode('utf-8')
-                subtitle = os.path.join(path, filename)
+                    for dir in dirs:
+
+                        _dirs, _files = control.listDir(control.join(uri if f.lower().endswith('.rar') else path, dir))
+
+                        [files.append(control.join(dir, i)) for i in _files]
+
+                        if _dirs:
+
+                            for _dir in _dirs:
+                                _dir += dir
+
+                                __dirs, __files = control.listDir(
+                                    control.join(uri if f.lower().endswith('.rar') else path, _dir))
+
+                                [files.append(control.join(dir, i)) for i in __files]
+
+                filenames = [i for i in files if i.endswith(('.srt', '.sub'))]
+
+                if len(filenames) == 1:
+
+                    filename = filenames[0]
+
+                else:
+
+                    choices = [split(i)[1] for i in filenames]
+
+                    choices.insert(0, control.lang(32215))
+
+                    _choice = control.selectDialog(heading=control.lang(32214), list=choices)
+
+                    if _choice == 0:
+                        filename = choice(filenames)
+                    elif _choice <= len(filenames) + 1:
+                        filename = filenames[_choice - 1]
+                    else:
+                        filename = choice(filenames)
+
+                try:
+
+                    filename = filename.decode('utf-8')
+
+                except Exception:
+
+                    pass
+
+                if not control.exists(control.join(path, split(filename)[0])):
+                    control.makeFiles(control.join(path, split(filename)[0]))
+
+                subtitle = control.join(path, filename)
 
                 if f.lower().endswith('.rar'):
 
-                    content = control.openFile(uri + filename).read()
+                    content = openFile(uri + filename).read()
 
                     with open(subtitle, 'wb') as subFile:
                         subFile.write(content)
 
-                    control.deleteFile(f)
+                    output = control.transPath(control.join('special://temp', split(filename)[1]))
 
-                    return subtitle
+                    shutil.move(subtitle, output)
+
+                    shutil.rmtree(control.join(control.dataPath, 'temp'))
+
+                    return output
 
                 else:
 
-                    control.deleteFile(f)
+                    output = control.transPath(control.join('special://temp', filename))
+
+                    shutil.move(subtitle, output)
+
+                    shutil.rmtree(control.join(control.dataPath, 'temp'))
 
                     return subtitle
 
         except:
+
             pass
