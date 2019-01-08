@@ -35,7 +35,7 @@ class Search:
         self.query = None
         self.list = []
 
-    def run(self, query=None):
+    def run(self, query=None, rerun=False):
 
         if not 'Greek' in str(langs).split(','):
 
@@ -75,7 +75,7 @@ class Search:
                 season, episode = '0', episode[-1:]
 
             if tvshowtitle != '':  # episode
-                if title:
+                if title and not rerun:
                     query = '{0} {1}'.format(tvshowtitle, title)
                 else:
                     query = '{0} S{1} E{2}'.format(tvshowtitle, season, episode)
@@ -102,6 +102,9 @@ class Search:
                 control.sleep(500)
             except:
                 pass
+
+        if not self.list and not rerun:
+            self.run(rerun=True)
 
         if len(self.list) == 0:
             control.directory(syshandle)

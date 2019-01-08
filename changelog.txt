@@ -1,4 +1,4 @@
-[B]1.5.3[/B]
+[B]1.5.3 - 1.5.4[/B]
 - Improved subtitle search for tv shows
 - Improved handling of subtitles choice on multisubs archives
 - Boolean check of archive format with is_zipfile instead of endswith
