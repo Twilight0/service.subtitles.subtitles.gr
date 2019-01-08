@@ -196,7 +196,7 @@ class subzxyz:
 
                 if _choice == 0:
                     filename = choice(filenames)
-                elif _choice <= len(filenames) + 1:
+                elif _choice != -1 and _choice <= len(filenames) + 1:
                     filename = filenames[_choice - 1]
                 else:
                     filename = choice(filenames)
