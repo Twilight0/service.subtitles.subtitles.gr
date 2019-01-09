@@ -41,13 +41,7 @@ def multichoice(filenames):
 
         return
 
-    elif len(filenames) == 1:
-
-        filename = filenames[0]
-
-        return filename
-
-    else:
+    elif len(filenames) > 1:
 
         choices = [os_split(i)[1] for i in filenames]
 
@@ -63,3 +57,7 @@ def multichoice(filenames):
             filename = choice(filenames)
 
         return filename
+
+    else:
+
+        return

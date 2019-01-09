@@ -15,11 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from xbmcvfs import File as openFile
+from xbmcvfs import rename, File as openFile
 from os.path import basename, split as os_split
 from resources.lib.tools import multichoice
 import zipfile, re
-from tulip import control, client
+from tulip import control, client, log
 from tulip.compat import unquote_plus, quote_plus, StringIO, urlopen, quote
 
 
@@ -230,12 +230,14 @@ class subtitlesgr:
                     with open(subtitle, 'wb') as subFile:
                         subFile.write(content)
 
-                    return subtitle
+                result = control.join(os_split(subtitle)[0], 'subtitles.' + os_split(subtitle)[1].split('.')[1])
 
-                else:
+                rename(subtitle, result)
 
-                    return subtitle
+                return result
 
-        except:
+        except Exception as e:
 
-            pass
+            log.log('Subtitles.gr failed for the following reason: ' + str(e))
+
+            return

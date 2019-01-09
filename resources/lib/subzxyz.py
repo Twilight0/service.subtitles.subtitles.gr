@@ -15,12 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from xbmcvfs import File as openFile
+from xbmcvfs import rename, File as openFile
 import re
 from os.path import split as os_split
 from resources.lib.tools import multichoice
 from tulip.compat import urljoin, quote_plus, unquote_plus, quote
-from tulip import cache, cleantitle, client, control
+from tulip import cache, cleantitle, client, control, log
 
 
 class subzxyz:
@@ -131,85 +131,90 @@ class subzxyz:
 
     def download(self, path, url):
 
-        # try:
+        try:
 
-        result = client.request(url)
+            result = client.request(url)
 
-        f = control.join(path, os_split(url)[1])
+            f = control.join(path, os_split(url)[1])
 
-        with open(f, 'wb') as subFile:
-            subFile.write(result)
-
-        dirs, files = control.listDir(path)
-
-        if len(files) == 0:
-            return
-
-        if not f.lower().endswith('.rar'):
-            control.execute('Extract("{0}","{0}")'.format(f, path))
-
-        if f.lower().endswith('.rar'):
-
-            if control.infoLabel('System.Platform.Windows'):
-                uri = "rar://{0}/".format(quote(f))
-            else:
-                uri = "rar://{0}/".format(quote_plus(f))
-
-            dirs, files = control.listDir(uri)
-
-        else:
+            with open(f, 'wb') as subFile:
+                subFile.write(result)
 
             dirs, files = control.listDir(path)
 
-        if dirs and f.lower().endswith('.rar'):
+            if len(files) == 0:
+                return
 
-            for dir in dirs:
+            if not f.lower().endswith('.rar'):
+                control.execute('Extract("{0}","{0}")'.format(f, path))
 
-                _dirs, _files = control.listDir(control.join(uri, dir))
+            if f.lower().endswith('.rar'):
 
-                [files.append(control.join(dir, i)) for i in _files]
+                if control.infoLabel('System.Platform.Windows'):
+                    uri = "rar://{0}/".format(quote(f))
+                else:
+                    uri = "rar://{0}/".format(quote_plus(f))
 
-                if _dirs:
+                dirs, files = control.listDir(uri)
 
-                    for _dir in _dirs:
-                        _dir = control.join(_dir, dir)
+            else:
 
-                        __dirs, __files = control.listDir(
-                            control.join(uri, _dir)
-                        )
+                dirs, files = control.listDir(path)
 
-                        [files.append(control.join(_dir, i)) for i in __files]
+            if dirs and f.lower().endswith('.rar'):
 
-        filenames = [i for i in files if i.endswith(('.srt', '.sub'))]
+                for dir in dirs:
 
-        filename = multichoice(filenames)
+                    _dirs, _files = control.listDir(control.join(uri, dir))
 
-        try:
+                    [files.append(control.join(dir, i)) for i in _files]
 
-            filename = filename.decode('utf-8')
+                    if _dirs:
 
-        except Exception:
+                        for _dir in _dirs:
+                            _dir = control.join(_dir, dir)
 
-            pass
+                            __dirs, __files = control.listDir(
+                                control.join(uri, _dir)
+                            )
 
-        if not control.exists(control.join(path, os_split(filename)[0])) and f.lower().endswith('.rar'):
-            control.makeFiles(control.join(path, os_split(filename)[0]))
+                            [files.append(control.join(_dir, i)) for i in __files]
 
-        subtitle = control.join(path, filename)
+            filenames = [i for i in files if i.endswith(('.srt', '.sub'))]
 
-        if f.lower().endswith('.rar'):
+            if len(filenames) == 1:
+                filename = filenames[0]
+            else:
+                filename = multichoice(filenames)
 
-            content = openFile(uri + filename).read()
+            try:
 
-            with open(subtitle, 'wb') as subFile:
-                subFile.write(content)
+                filename = filename.decode('utf-8')
 
-            return subtitle
+            except Exception:
 
-        else:
+                pass
 
-            return subtitle
+            if not control.exists(control.join(path, os_split(filename)[0])) and f.lower().endswith('.rar'):
+                control.makeFiles(control.join(path, os_split(filename)[0]))
 
-        # except:
-        #
-        #     pass
+            subtitle = control.join(path, filename)
+
+            if f.lower().endswith('.rar'):
+
+                content = openFile(uri + filename).read()
+
+                with open(subtitle, 'wb') as subFile:
+                    subFile.write(content)
+
+            result = control.join(os_split(subtitle)[0], 'subtitles.' + os_split(subtitle)[1].split('.')[1])
+
+            rename(subtitle, result)
+
+            return result
+
+        except Exception as e:
+
+            log.log('Subzxyz failed for the following reason: ' + str(e))
+
+            return

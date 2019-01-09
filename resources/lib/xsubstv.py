@@ -15,9 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from os.path import split as os_split
+from xbmcvfs import rename
 import re
 from tulip.compat import urlencode
-from tulip import cache, cleantitle, client, control
+from tulip import cache, cleantitle, client, control, log
 
 
 class xsubstv:
@@ -148,7 +150,12 @@ class xsubstv:
             subtitle = content['Content-Disposition']
             subtitle = re.findall('"(.+?)"', subtitle)[0]
 
-            subtitle = control.join(path, subtitle.decode('utf-8'))
+            try:
+                subtitle = subtitle.decode('utf-8')
+            except Exception:
+                pass
+
+            subtitle = control.join(path, subtitle)
 
             if not subtitle.endswith('.srt'):
                 raise Exception()
@@ -156,8 +163,14 @@ class xsubstv:
             with open(subtitle, 'wb') as subFile:
                 subFile.write(result)
 
-            return subtitle
+            result = control.join(os_split(subtitle)[0], 'subtitles.' + os_split(subtitle)[1].split('.')[1])
 
-        except:
+            rename(subtitle, result)
 
-            pass
+            return result
+
+        except Exception as e:
+
+            log.log('Xsubstv failed for the following reason: ' + str(e))
+
+            return

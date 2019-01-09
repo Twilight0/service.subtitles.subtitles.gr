@@ -24,7 +24,7 @@ import re
 from resources.lib import subtitlesgr, xsubstv, subzxyz
 from resources.lib.tools import syshandle, sysaddon, langs
 
-from tulip import control, workers
+from tulip import control, workers, log
 from tulip.compat import urlencode
 
 
@@ -85,6 +85,8 @@ class Search:
                 query, year = getCleanMovieTitle(title)
                 if year != '':
                     query = '{0} ({1})'.format(query, year)
+
+        log.log('Query used for subtitles search: ' + query)
 
         self.query = query
 
