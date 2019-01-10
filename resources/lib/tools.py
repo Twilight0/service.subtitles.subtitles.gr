@@ -37,11 +37,14 @@ langs = params.get('languages')
 
 def multichoice(filenames):
 
-    if len(filenames) == 0:
+    if filenames is None or len(filenames) == 0:
 
         return
 
-    elif len(filenames) > 1:
+    elif len(filenames) >= 1:
+
+        if len(filenames) == 1:
+            return filenames[0]
 
         choices = [os_split(i)[1] for i in filenames]
 

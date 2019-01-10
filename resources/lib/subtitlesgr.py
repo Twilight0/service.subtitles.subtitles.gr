@@ -45,7 +45,10 @@ class subtitlesgr:
 
             items = client.parseDOM(result, 'tr', attrs={'on.+?': '.+?'})
 
-        except:
+        except Exception as e:
+
+            log.log('Subtitles.gr failed at get function, reason: ' + str(e))
+
             return
 
         for item in items:
@@ -88,26 +91,31 @@ class subtitlesgr:
 
                 self.list.append({'name': name, 'url': url, 'source': 'subtitlesgr', 'rating': rating})
 
-            except:
+            except Exception as e:
 
-                pass
+                log.log('Subtitles.gr failed at self.list formation function, reason: ' + str(e))
+
+                return
 
         return self.list
 
     def _rating(self, downloads):
 
         try:
+
             rating = int(downloads)
+
         except:
+
             rating = 0
 
         if rating < 100:
             rating = 1
-        elif rating >= 100 and rating < 200:
+        elif 100 <= rating < 200:
             rating = 2
-        elif rating >= 200 and rating < 300:
+        elif 200 <= rating < 300:
             rating = 3
-        elif rating >= 300 and rating < 400:
+        elif 300 <= rating < 400:
             rating = 4
         elif rating >= 400:
             rating = 5
@@ -238,6 +246,6 @@ class subtitlesgr:
 
         except Exception as e:
 
-            log.log('Subtitles.gr failed for the following reason: ' + str(e))
+            log.log('Subtitles.gr subtitle download failed for the following reason: ' + str(e))
 
             return

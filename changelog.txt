@@ -1,6 +1,5 @@
-[B]1.5.5[/B]
-- Log exception on failure when downloading a subtitle
-- Log queries for debugging purposes
+[B]1.5.5 - 1.5.6[/B]
+- Log exceptions and queries for debugging purposes
 - Rename subtitle in order to mitigate illegal chars for filesystems that struggle with them
 
 [B]1.5.3 - 1.5.4[/B]

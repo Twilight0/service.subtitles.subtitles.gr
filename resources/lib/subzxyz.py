@@ -28,9 +28,13 @@ class subzxyz:
     def __init__(self):
 
         self.list = []
+        self.r = None
+        self.r = None
 
     def get(self, query):
+
         try:
+
             match = re.findall('(.+?) \((\d{4})\)$', query)
 
             if len(match) > 0:
@@ -55,11 +59,19 @@ class subzxyz:
                     c = cache.get(self.cache, 2200, i)
 
                     if c is not None:
+
                         if cleantitle.get(c[0]) == cleantitle.get(title) and c[1] == year:
+
                             try:
+
                                 item = self.r
-                            except:
+
+                            except Exception as e:
+
+                                log.log('Subzxyz.py re-requesting, reason: ' + str(e))
+
                                 item = client.request(i)
+
                             break
 
             else:
@@ -82,11 +94,15 @@ class subzxyz:
                 url = url[:3]
 
                 for i in url:
+
                     c = cache.get(self.cache, 2200, i)
 
                     if c is not None:
+
                         if cleantitle.get(c[0]) == cleantitle.get(title):
+
                             item = i
+
                             break
 
                 item = '{0}/seasons/{1}/episodes/{2}'.format(item, season, episode)
@@ -94,10 +110,15 @@ class subzxyz:
 
             item = re.sub(r'[^\x00-\x7F]+', ' ', item)
             items = client.parseDOM(item, 'tr', attrs={'data-id': '.+?'})
-        except:
+
+        except Exception as e:
+
+            log.log('Subzxyz failed at get function, reason: ' + str(e))
+
             return
 
         for item in items:
+
             try:
 
                 r = client.parseDOM(item, 'td', attrs={'class': '.+?'})[-1]
@@ -113,23 +134,33 @@ class subzxyz:
                 name = name.encode('utf-8')
 
                 self.list.append({'name': name, 'url': url, 'source': 'subzxyz', 'rating': 5})
-            except:
-                pass
+
+            except Exception as e:
+
+                log.log('Subzxyz failed at self.list formation function, reason: ' + str(e))
+
+                return
 
         return self.list
 
     def cache(self, i):
 
         try:
+
             self.r = client.request(i)
             self.r = re.sub(r'[^\x00-\x7F]+', ' ', self.r)
             t = re.findall('(?:\"|\')original_title(?:\"|\')\s*:\s*(?:\"|\')(.+?)(?:\"|\')', self.r)[0]
             y = re.findall('(?:\"|\')year(?:\"|\')\s*:\s*(?:\"|\'|)(\d{4})', self.r)[0]
-            return (t, y)
-        except:
-            pass
+            return t, y
 
-    def download(self, path, url):
+        except Exception as e:
+
+            log.log('Subzxyz failed at cache function, reason: ' + str(e))
+
+            return
+
+    @staticmethod
+    def download(path, url):
 
         try:
 
@@ -215,6 +246,6 @@ class subzxyz:
 
         except Exception as e:
 
-            log.log('Subzxyz failed for the following reason: ' + str(e))
+            log.log('Subzxyz subtitle download failed for the following reason: ' + str(e))
 
             return

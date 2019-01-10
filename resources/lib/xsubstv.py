@@ -15,9 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import re
 from os.path import split as os_split
 from xbmcvfs import rename
-import re
 from tulip.compat import urlencode
 from tulip import cache, cleantitle, client, control, log
 
@@ -60,17 +60,21 @@ class xsubstv:
             items = [i[1] for i in items if len(i[0]) > 0 and i[0][0] == episode][0]
             items = re.findall('(<sr .+?</sr>)', items)
 
-        except:
+        except Exception as e:
 
-            return self.list
+            log.log('Xsubs.tv failed at get function, reason: ' + str(e))
+
+            return
 
         for item in items:
 
             try:
 
                 p = client.parseDOM(item, 'sr', ret='published_on')[0]
+
                 if p == '':
-                    raise Exception
+
+                    raise Exception('Parsedom found no match, line 71 @ xsubztv.py')
 
                 name = client.parseDOM(item, 'sr')[0]
                 name = name.rsplit('<hits>', 1)[0]
@@ -86,9 +90,11 @@ class xsubstv:
 
                 self.list.append({'name': name, 'url': url, 'source': 'xsubstv', 'rating': 5})
 
-            except Exception:
+            except Exception as e:
 
-                pass
+                log.log('Xsubs.tv failed at self.list formation function, reason:  ' + str(e))
+
+                return
 
         return self.list
 
@@ -104,9 +110,11 @@ class xsubstv:
 
             return result
 
-        except:
+        except Exception as e:
 
-            pass
+            log.log('Xsubs.tv failed at cache function, reason:  ' + str(e))
+
+            return
 
     def cookie(self):
 
@@ -126,13 +134,16 @@ class xsubstv:
 
             return c
 
-        except:
+        except Exception as e:
 
-            pass
+            log.log('Xsubs.tv failed at cookie function, reason: ' + str(e))
+
+            return
 
     def download(self, path, url):
 
         try:
+
             cookie = None
 
             anonymous = (self.user == '' or self.password == '')
@@ -140,10 +151,14 @@ class xsubstv:
             code, result = client.request(url, output='response', error=True)
 
             if code == '429' and anonymous is True:
+
                 control.dialog.ok(str('xsubs.tv'), str(result), str(''))
+
                 return
+
             elif anonymous is False:
-                cookie = cache.get(self.cookie, 6)
+
+                cookie = cache.get(self.cookie, 12)
 
             result, headers, content, cookie = client.request(url, cookie=cookie, output='extended')
 
@@ -171,6 +186,6 @@ class xsubstv:
 
         except Exception as e:
 
-            log.log('Xsubstv failed for the following reason: ' + str(e))
+            log.log('Xsubstv subtitle download failed for the following reason: ' + str(e))
 
             return

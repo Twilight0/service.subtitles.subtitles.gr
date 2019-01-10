@@ -95,25 +95,34 @@ class Search:
         [i.start() for i in threads]
 
         for i in range(0, 10 * 2):
+
             try:
+
                 is_alive = [x.is_alive() for x in threads]
+
                 if all(x is False for x in is_alive):
                     break
                 if control.aborted is True:
                     break
+
                 control.sleep(500)
-            except:
+
+            except Exception:
+
                 pass
 
         if not self.list and not rerun:
             self.run(rerun=True)
 
         if len(self.list) == 0:
+
             control.directory(syshandle)
+
             return
 
         f = []
 
+        # noinspection PyUnresolvedReferences
         f += [i for i in self.list if i['source'] == 'xsubstv']
         f += [i for i in self.list if i['source'] == 'subzxyz']
         f += [i for i in self.list if i['source'] == 'subtitlesgr']
@@ -123,31 +132,26 @@ class Search:
         for i in self.list:
 
             try:
+
                 if i['source'] == 'subzxyz':
                     i['name'] = '[subzxyz] {0}'.format(i['name'])
                 elif i['source'] == 'xsubstv':
                     i['name'] = '[xsubstv] {0}'.format(i['name'])
-            except:
-                pass
-
-        for i in self.list:
-
-            try:
-
-                name, url, source, rating = i['name'], i['url'], i['source'], i['rating']
-
-                u = {'action': 'download', 'url': url, 'source': source}
-                u = '{0}?{1}'.format(sysaddon, urlencode(u))
-
-                item = control.item(label='Greek', label2=name, iconImage=str(rating), thumbnailImage='el')
-                item.setProperty('sync', 'false')
-                item.setProperty('hearing_imp', 'false')
-
-                control.addItem(handle=syshandle, url=u, listitem=item, isFolder=False)
 
             except Exception:
 
                 pass
+
+        for i in self.list:
+
+            u = {'action': 'download', 'url': i['url'], 'source': i['source']}
+            u = '{0}?{1}'.format(sysaddon, urlencode(u))
+
+            item = control.item(label='Greek', label2=i['name'], iconImage=str(i['rating']), thumbnailImage='el')
+            item.setProperty('sync', 'false')
+            item.setProperty('hearing_imp', 'false')
+
+            control.addItem(handle=syshandle, url=u, listitem=item, isFolder=False)
 
         control.directory(syshandle)
 
@@ -161,15 +165,21 @@ class Search:
     def xsubstv(self):
 
         try:
+
             self.list.extend(xsubstv.xsubstv().get(self.query))
+
         except TypeError:
+
             pass
 
     def subzxyz(self):
 
         try:
+
             self.list.extend(subzxyz.subzxyz().get(self.query))
+
         except TypeError:
+
             pass
 
 
@@ -184,8 +194,11 @@ class Download:
         path = control.join(control.dataPath, 'temp')
 
         try:
+
             path = path.decode('utf-8')
+
         except Exception:
+
             pass
 
         control.deleteDir(control.join(path, ''), force=True)
