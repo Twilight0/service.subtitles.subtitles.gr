@@ -35,7 +35,10 @@ class subzxyz:
 
         try:
 
-            match = re.findall('(.+?) \((\d{4})\)$', query)
+            try:
+                match = re.findall(r'(.+?) \(?(\d{4})\)?$', query)
+            except IndexError:
+                match = re.findall('(.+?)', query)
 
             if len(match) > 0:
 
