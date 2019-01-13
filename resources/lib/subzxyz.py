@@ -35,12 +35,9 @@ class subzxyz:
 
         try:
 
-            try:
-                match = re.findall(r'(.+?) \(?(\d{4})\)?$', query)
-            except IndexError:
-                match = re.findall('(.+?)', query)
+            match = re.findall(r'(.+?) *?\(?(\d{4})?\)?$', query)
 
-            if len(match) > 0:
+            if len(match) == 2:
 
                 title, year = match[0][0], match[0][1]
 
@@ -79,7 +76,7 @@ class subzxyz:
 
             else:
 
-                title, season, episode = re.findall('(.+?) S(\d+)E(\d+)$', query)[0]
+                title, season, episode = re.findall('(.+?) S?(\d+) ?X?E?(\d+)$', query, flags=re.IGNORECASE)[0]
 
                 season, episode = '{0}'.format(season), '{0}'.format(episode)
 

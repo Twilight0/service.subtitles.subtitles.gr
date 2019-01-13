@@ -34,7 +34,7 @@ class xsubstv:
 
         try:
 
-            title, season, episode = re.findall('(.+?) S?(\d+)E?(\d+)$', query)[0]
+            title, season, episode = re.findall('(.+?) S?(\d+) ?X?E?(\d+)$', query, flags=re.IGNORECASE)[0]
 
             season, episode = '{0}'.format(season), '{0}'.format(episode)
 
