@@ -25,7 +25,7 @@ from resources.lib import subtitlesgr, xsubstv, subzxyz
 from resources.lib.tools import syshandle, sysaddon, langs
 
 from tulip import control, workers, log
-from tulip.compat import urlencode
+from tulip.compat import urlencode, range
 
 
 class Search:
@@ -92,7 +92,7 @@ class Search:
             else:  # file
                 query, year = getCleanMovieTitle(title)
                 if year != '':
-                    query = '{0} ({1})'.format(self.query, year)
+                    query = '{0} ({1})'.format(query, year)
 
         if not dup_removal:
 
@@ -102,22 +102,18 @@ class Search:
 
         [i.start() for i in threads]
 
-        for i in range(0, 10 * 2):
+        for c, i in list(enumerate(range(0, 40))):
 
-            try:
+            is_alive = [x.is_alive() for x in threads]
 
-                is_alive = [x.is_alive() for x in threads]
+            if all(x is False for x in is_alive):
+                log.log('Reached count : ' + str(c))
+                break
+            if control.aborted is True:
+                log.log('Aborted, reached count : ' + str(c))
+                break
 
-                if all(x is False for x in is_alive):
-                    break
-                if control.aborted is True:
-                    break
-
-                control.sleep(500)
-
-            except Exception:
-
-                pass
+            control.sleep(750)
 
         if len(self.list) == 0:
 
