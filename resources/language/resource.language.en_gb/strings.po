@@ -7,7 +7,6 @@
 msgid ""
 msgstr ""
 
-
 msgctxt "#32001"
 msgid "Error searching for subtitles"
 msgstr ""
@@ -34,4 +33,16 @@ msgstr ""
 
 msgctxt "#32215"
 msgid "Random choice"
+msgstr ""
+
+msgctxt "#32216"
+msgid "Actions"
+msgstr ""
+
+msgctxt "#32217"
+msgid "Reset function cache"
+msgstr ""
+
+msgctxt "#32218"
+msgid "Search term might be too broad or incorrect"
 msgstr ""

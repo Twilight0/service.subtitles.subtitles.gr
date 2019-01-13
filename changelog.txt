@@ -1,3 +1,8 @@
+[B]1.5.7[/B]
+- Instantiate query variable in run function
+- Search tv shows/series subtitles with dual queries to maximize subtitles match
+- Add clear cache function
+
 [B]1.5.5 - 1.5.6[/B]
 - Log exceptions and queries for debugging purposes
 - Rename subtitle in order to mitigate illegal chars for filesystems that struggle with them

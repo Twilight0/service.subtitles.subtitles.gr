@@ -7,7 +7,6 @@
 msgid ""
 msgstr ""
 
-
 msgctxt "#32001"
 msgid "Error searching for subtitles"
 msgstr "Αδύνατη η εύρεση υποτίτλων"
@@ -35,3 +34,15 @@ msgstr "Το πακέτο περιέχει πολλαπλούς υποτίτλο
 msgctxt "#32215"
 msgid "Random choice"
 msgstr "Τυχαία επιλογή"
+
+msgctxt "#32216"
+msgid "Actions"
+msgstr "Ενέργειες"
+
+msgctxt "#32217"
+msgid "Reset function cache"
+msgstr "Επαναφορά μνήμης λειτουργιών"
+
+msgctxt "#32218"
+msgid "Search term might be too broad or incorrect"
+msgstr "Το κείμενο αναζήτησης μπορεί να είναι πολύ γενικό ή λανθασμένο"

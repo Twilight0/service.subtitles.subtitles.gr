@@ -32,10 +32,10 @@ class Search:
 
     def __init__(self):
 
-        self.query = None
         self.list = []
+        self.query = None
 
-    def run(self, query=None, rerun=False):
+    def run(self, query=None):
 
         if not 'Greek' in str(langs).split(','):
 
@@ -44,7 +44,10 @@ class Search:
 
             return
 
-        if query is None:
+        threads = [workers.Thread(self.xsubstv), workers.Thread(self.subzxyz), workers.Thread(self.subtitlesgr)]
+        dup_removal = False
+
+        if not query:
 
             if control.condVisibility('Player.HasVideo'):
                 infolabel_prefix = 'VideoPlayer'
@@ -75,22 +78,27 @@ class Search:
                 season, episode = '0', episode[-1:]
 
             if tvshowtitle != '':  # episode
-                if title and not rerun:
-                    query = '{0} {1}'.format(tvshowtitle, title)
-                else:
-                    query = '{0} S{1} E{2}'.format(tvshowtitle, season, episode)
+                title_query = '{0} {1}'.format(tvshowtitle, title)
+                season_episode_query = '{0} S{1} E{2}'.format(tvshowtitle, season, episode)
+                threads = [
+                    workers.Thread(self.xsubstv, title_query), workers.Thread(self.subzxyz, title_query),
+                    workers.Thread(self.subtitlesgr, title_query), workers.Thread(self.xsubstv, season_episode_query),
+                    workers.Thread(self.subzxyz, season_episode_query), workers.Thread(self.subtitlesgr, season_episode_query)
+                ]
+                dup_removal = True
+                log.log('Dual query used for subtitles search: ' + title_query + ' / ' + season_episode_query)
             elif year != '':  # movie
                 query = '{0} ({1})'.format(title, year)
             else:  # file
                 query, year = getCleanMovieTitle(title)
                 if year != '':
-                    query = '{0} ({1})'.format(query, year)
+                    query = '{0} ({1})'.format(self.query, year)
 
-        log.log('Query used for subtitles search: ' + query)
+        if not dup_removal:
+
+            log.log('Query used for subtitles search: ' + query)
 
         self.query = query
-
-        threads = [workers.Thread(self.xsubstv), workers.Thread(self.subzxyz), workers.Thread(self.subtitlesgr)]
 
         [i.start() for i in threads]
 
@@ -111,12 +119,10 @@ class Search:
 
                 pass
 
-        if not self.list and not rerun:
-            self.run(rerun=True)
-
         if len(self.list) == 0:
 
             control.directory(syshandle)
+            control.infoDialog(control.lang(32218), time=6000)
 
             return
 
@@ -128,6 +134,10 @@ class Search:
         f += [i for i in self.list if i['source'] == 'subtitlesgr']
 
         self.list = f
+
+        if dup_removal:
+
+            self.list = [dict(t) for t in {tuple(d.items()) for d in self.list}]
 
         for i in self.list:
 
@@ -155,28 +165,40 @@ class Search:
 
         control.directory(syshandle)
 
-    def subtitlesgr(self):
+    def subtitlesgr(self, query=None):
+
+        if not query:
+
+            query = self.query
 
         try:
-            self.list.extend(subtitlesgr.subtitlesgr().get(self.query))
+            self.list.extend(subtitlesgr.subtitlesgr().get(query))
         except TypeError:
             pass
 
-    def xsubstv(self):
+    def xsubstv(self, query=None):
+
+        if not query:
+
+            query = self.query
 
         try:
 
-            self.list.extend(xsubstv.xsubstv().get(self.query))
+            self.list.extend(xsubstv.xsubstv().get(query))
 
         except TypeError:
 
             pass
 
-    def subzxyz(self):
+    def subzxyz(self, query=None):
+
+        if not query:
+
+            query = self.query
 
         try:
 
-            self.list.extend(subzxyz.subzxyz().get(self.query))
+            self.list.extend(subzxyz.subzxyz().get(query))
 
         except TypeError:
 
