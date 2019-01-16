@@ -41,7 +41,10 @@ class subtitlesgr:
 
             result = client.request(url)
 
-            result = result.decode('utf-8')
+            try:
+                result = result.decode('utf-8', errors='replace')
+            except AttributeError:
+                pass
 
             items = client.parseDOM(result, 'tr', attrs={'on.+?': '.+?'})
 
@@ -55,8 +58,8 @@ class subtitlesgr:
 
             try:
 
-                if not 'flags/el.gif' in item:
-                    raise Exception()
+                if u'flags/el.gif' not in item:
+                    continue
 
                 try:
                     uploader = client.parseDOM(item, 'a', attrs={'class': 'link_from'})[0].strip()
@@ -78,7 +81,7 @@ class subtitlesgr:
 
                 name = client.parseDOM(item, 'a', attrs={'onclick': 'runme.+?'})[0]
                 name = ' '.join(re.sub('<.+?>', '', name).split())
-                name = '[{0}] {1} [{2} DLs]'.format(uploader, name, downloads)
+                name = u'[{0}] {1} [{2} DLs]'.format(uploader, name, downloads)
                 name = client.replaceHTMLCodes(name)
                 name = name.encode('utf-8')
 

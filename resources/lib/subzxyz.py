@@ -35,11 +35,16 @@ class subzxyz:
 
         try:
 
-            match = re.findall(r'(.+?) *?\(?(\d{4})?\)?$', query)
+            try:
+                match = re.findall(r'(.+?) (?!\d{4})S?(\d{1,2}) ?X?E?(\d{1,2})$', query, flags=re.IGNORECASE)[0]
+            except Exception:
+                match = None
 
-            if len(match) == 2:
+            if not match:
 
-                title, year = match[0][0], match[0][1]
+                match = re.findall(r'(.+?) *?\(?(\d{4})?\)?$', query)[0]
+
+                title, year = match[0], match[1]
 
                 query = ' '.join(unquote_plus(re.sub('%\w\w', ' ', quote_plus(title))).split())
 
@@ -52,7 +57,7 @@ class subzxyz:
                 url = re.findall('(/movies/\d+)', url)
                 url = [x for y, x in enumerate(url) if x not in url[:y]]
                 url = [urljoin('https://subz.xyz', i) for i in url]
-                url = url[:3]
+                url = url[:20][::-1]
 
                 for i in url:
 
@@ -76,7 +81,7 @@ class subzxyz:
 
             else:
 
-                title, season, episode = re.findall('(.+?) S?(\d+) ?X?E?(\d+)$', query, flags=re.IGNORECASE)[0]
+                title, season, episode = match
 
                 season, episode = '{0}'.format(season), '{0}'.format(episode)
 
@@ -91,7 +96,7 @@ class subzxyz:
                 url = re.findall('(/series/\d+)', url)
                 url = [x for y, x in enumerate(url) if x not in url[:y]]
                 url = [urljoin('https://subz.xyz', i) for i in url]
-                url = url[:3]
+                url = url[:20][::-1]
 
                 for i in url:
 
