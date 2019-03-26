@@ -44,5 +44,5 @@ msgid "Reset function cache"
 msgstr ""
 
 msgctxt "#32218"
-msgid "Search term might be too broad or incorrect"
+msgid ""
 msgstr ""

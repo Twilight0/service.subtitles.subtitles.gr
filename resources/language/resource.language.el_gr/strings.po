@@ -44,5 +44,5 @@ msgid "Reset function cache"
 msgstr "Επαναφορά μνήμης λειτουργιών"
 
 msgctxt "#32218"
-msgid "Search term might be too broad or incorrect"
-msgstr "Το κείμενο αναζήτησης μπορεί να είναι πολύ γενικό ή λανθασμένο"
+msgid ""
+msgstr ""

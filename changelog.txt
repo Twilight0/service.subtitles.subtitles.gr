@@ -1,3 +1,11 @@
+[B]1.7.Χ[/B]
+- Extraction method for zip files is now performed by python library by default
+  > Keeping Kodi built-in as fallback
+- Importing vfs.libarchive for Leia to extract rar archives
+- Removed notification for broad search terms
+- Tweaked various functions to allow broad search terms
+- Various other tweaks
+
 [B]1.6.0[/B]
 - Tweaked conditionals for match on subzxyz
 - Subtitles.gr:

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="service.subtitles.subtitles.gr" name="Subtitles.gr" version="1.6.0" provider-name="Twilight0">
+<addon id="service.subtitles.subtitles.gr" name="Subtitles.gr" version="1.7.0~beta1" provider-name="Twilight0">
 	<requires>
 		<import addon="xbmc.python" version="2.24.0"/>
-		<import addon="script.module.tulip" version="2.2.4" />
+		<import addon="script.module.tulip" version="2.3.5" />
 	</requires>
 	<extension point="xbmc.subtitle.module" library="service.py">
 	</extension>
@@ -18,7 +18,14 @@
 		<website>http://www.subtitles.gr/</website>
 		<platform>all</platform>
 		<language>el</language>
-		<news>[B]1.6.0[/B]
+		<news>[B]1.7.Χ[/B]
+- Extraction method for zip files is now performed by python library by default
+  > Keeping Kodi built-in as fallback
+- Removed notification for broad search terms
+- Tweaked various functions to allow broad search terms
+- Various other tweaks
+
+[B]1.6.0[/B]
 - Tweaked conditionals for match on subzxyz
 - Subtitles.gr:
   > requested html will now replace errors when decoding
