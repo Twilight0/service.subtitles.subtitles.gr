@@ -37,12 +37,20 @@ class Search:
 
     def run(self, query=None):
 
-        if not 'Greek' in str(langs).split(','):
+        if 'Greek' not in str(langs).split(','):
 
             control.directory(syshandle)
             control.infoDialog(control.lang(32002))
 
             return
+
+        if not control.conditional_visibility(
+            'System.HasAddon(vfs.libarchive)'
+        ) and float(
+            control.addon('xbmc.addon').getAddonInfo('version')[:4]
+        ) >= 18.0:
+
+            control.execute('InstallAddon(vfs.libarchive)')
 
         threads = [workers.Thread(self.xsubstv), workers.Thread(self.subzxyz), workers.Thread(self.subtitlesgr)]
         dup_removal = False
