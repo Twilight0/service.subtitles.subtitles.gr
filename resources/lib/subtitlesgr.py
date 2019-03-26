@@ -37,9 +37,17 @@ class subtitlesgr:
 
             query = ' '.join(unquote_plus(re.sub('%\w\w', ' ', quote_plus(query))).split())
 
-            url = 'http://www.subtitles.gr/search.php?name={0}&sort=downloads+desc'.format(quote_plus(query))
+            if control.setting('subtitlesgr') == 'true':
 
-            result = client.request(url)
+                url = 'http://www.subtitles.gr/search.php?name={0}'.format(quote_plus(query))
+
+            else:
+
+                url = 'http://www.findsubtitles.eu/search.php?text={0}&lang=Greek&button=Search'.format(quote_plus(query))
+
+            url = client.request(url, output='geturl')
+
+            result = client.request(url.replace('www', 'gr'))
 
             try:
                 result = result.decode('utf-8', errors='replace')
@@ -59,9 +67,11 @@ class subtitlesgr:
             try:
 
                 if u'flags/el.gif' not in item:
+
                     continue
 
                 try:
+
                     uploader = client.parseDOM(item, 'a', attrs={'class': 'link_from'})[0].strip()
                     try:
                         uploader = uploader.decode('utf-8')
@@ -71,11 +81,13 @@ class subtitlesgr:
                         raise Exception
                     if uploader in filtered:
                         continue
+
                 except Exception:
+
                     uploader = 'other'
 
                 try:
-                    downloads = client.parseDOM(item, 'td', attrs={'class': 'latest_downloads'})[0]
+                    downloads = client.parseDOM(item, 'td', attrs={'class': 'latest_downloads'})[0].strip()
                 except:
                     downloads = '0'
 
@@ -95,6 +107,8 @@ class subtitlesgr:
                 rating = self._rating(downloads)
 
                 self.list.append({'name': name, 'url': url, 'source': 'subtitlesgr', 'rating': rating})
+
+                self.list.sort(key=lambda k: k['rating'], reverse=True)
 
             except Exception as e:
 
