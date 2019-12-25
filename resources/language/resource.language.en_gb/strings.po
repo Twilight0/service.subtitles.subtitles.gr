@@ -75,6 +75,6 @@ msgctxt "#32224"
 msgid "Rating"
 msgstr ""
 
-msgctxt "#32219"
+msgctxt "#32225"
 msgid "Disable for faster searches"
 msgstr ""

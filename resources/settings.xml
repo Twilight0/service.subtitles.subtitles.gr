@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
 	<category label="32218">
-		<setting id="subtitlesgr" label="Subtitles.gr" type="bool" default="true"/>
+		<setting type="lsep" label="32225"/>
+		<setting id="subtitles" label="Subtitles.gr" type="bool" default="true"/>
 		<setting id="xsubs" label="Xsubs.tv" type="bool" default="true"/>
 		<setting id="podnapisi" label="Podnapisi.net" type="bool" default="true"/>
 		<setting id="subs4free" label="Subs4free.info" type="bool" default="false"/>

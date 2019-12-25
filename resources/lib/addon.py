@@ -206,7 +206,7 @@ class Search:
 
         try:
 
-            if control.setting('subtitlesgr') == 'false':
+            if control.setting('subtitles') == 'false':
                 raise TypeError
 
             if control.setting('cache') == 'true':
