@@ -47,7 +47,7 @@ class Search:
         ) and float(
             control.addon('xbmc.addon').getAddonInfo('version')[:4]
         ) >= 18.0 and not (
-                control.condVisibility('System.Platform.Linux') or control.condVisibility('System.Platform.Linux.RaspberryPi')
+            control.condVisibility('System.Platform.Linux') or control.condVisibility('System.Platform.Linux.RaspberryPi')
         ):
 
             control.execute('InstallAddon(vfs.libarchive)')
@@ -56,6 +56,7 @@ class Search:
             workers.Thread(self.xsubstv), workers.Thread(self.subtitlesgr), workers.Thread(self.podnapisi),
             workers.Thread(self.subs4free)
         ]
+
         dup_removal = False
 
         if not query:
@@ -137,7 +138,7 @@ class Search:
                 log.log('Aborted, reached count : ' + str(c))
                 break
 
-            control.sleep(500)
+            control.sleep(200)
 
         if len(self.list) == 0:
 
@@ -327,10 +328,6 @@ class Download:
         elif source == 'subs4free':
 
             subtitle = subs4free.Subs4free().download(path, url)
-
-        elif source == 'tvsubtitlesgr':
-
-            subtitle = None
 
         else:
 

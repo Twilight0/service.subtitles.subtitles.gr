@@ -37,7 +37,7 @@ class Xsubstv:
 
         try:
 
-            title, season, episode = re.findall(r'(.+?) ?s?(\d{1,2}) ?x? ?e?(\d{1,2})', query, flags=re.I)[0]
+            title, season, episode = re.findall(r'(.+?) ?s?(\d{1,2}) ?x? ?e?p?(\d{1,2})', query, flags=re.I)[0]
 
             if season.startswith('0'):
                 season = season[-1]

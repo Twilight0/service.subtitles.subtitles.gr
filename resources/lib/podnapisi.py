@@ -45,7 +45,7 @@ class Podnapisi:
             )
 
             match = re.findall(
-                r'(.+?)(?: -)? (?:\(?(\d{4})\)?|S?(\d{1,2})X? ?E?(\d{1,2})(?: \. (.+))?)', query, flags=re.I
+                r'(.+?)(?: -)? (?:\(?(\d{4})\)?|S?(\d{1,2})X? ?E?P?(\d{1,2})(?: \. (.+))?)', query, flags=re.I
             )
 
             if match:
