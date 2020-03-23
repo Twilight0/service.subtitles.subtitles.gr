@@ -78,3 +78,7 @@ msgstr "Αξιολόγηση"
 msgctxt "#32225"
 msgid "Disable for faster searches"
 msgstr "Ταχύτερες αναζητήσεις με απενεργοποίηση"
+
+msgctxt "#32226"
+msgid "Timeout in seconds"
+msgstr "Χρόνος λήξης σε δευτερόλεπτα"

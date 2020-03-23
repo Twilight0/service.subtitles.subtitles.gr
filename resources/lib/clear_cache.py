@@ -16,8 +16,10 @@
 '''
 
 from xbmc import translatePath
+from xbmcgui import Dialog
 from xbmcvfs import delete
 
 if __name__ == '__main__':
 
     delete(translatePath('special://profile/addon_data/service.subtitles.subtitles.gr/cache.db'))
+    Dialog().notification('Subtitles.gr', 'OK', time=2, sound=False)

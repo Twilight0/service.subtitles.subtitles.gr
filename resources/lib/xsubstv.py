@@ -37,7 +37,11 @@ class Xsubstv:
 
         try:
 
-            title, season, episode = re.findall(r'(.+?) ?s?(\d{1,2}) ?x? ?e?p?(\d{1,2})', query, flags=re.I)[0]
+            try:
+                title, season, episode = re.findall(r'(.+?)[ .]s?(\d{1,2})(?: |.)?(?:ep?|x|\.)?(\d{1,2})?', query, flags=re.I)[0]
+            except IndexError:
+                log.log_debug('Search query is not a tv show related, xsubs.tv does not offer movies\' subs')
+                return
 
             if season.startswith('0'):
                 season = season[-1]

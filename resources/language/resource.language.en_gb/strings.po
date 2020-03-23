@@ -78,3 +78,7 @@ msgstr ""
 msgctxt "#32225"
 msgid "Disable for faster searches"
 msgstr ""
+
+msgctxt "#32226"
+msgid "Timeout in seconds"
+msgstr ""

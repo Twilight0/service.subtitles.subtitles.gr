@@ -45,7 +45,8 @@ class Podnapisi:
             )
 
             match = re.findall(
-                r'(.+?)(?: -)? (?:\(?(\d{4})\)?|S?(\d{1,2})X? ?E?P?(\d{1,2})(?: \. (.+))?)', query, flags=re.I
+                r'(.+?)(?: -)?[ \.](?:\(?(\d{4})\)?|S?(\d{1,2})X?(?: |\.)?E?P?(\d{1,2})(?: \. (.+))?)', query,
+                flags=re.I
             )
 
             if match:
@@ -74,7 +75,7 @@ class Podnapisi:
                     ]
                 )
 
-            result = client.request(url, headers={'Accept': 'text/html', 'Accept-Language': 'en-US,en;q=0.9,el;q=0.8'})
+            result = client.request(url, headers={'Accept': 'text/html', 'Accept-Language': 'en-US,en;q=0.9,el;q=0.8'}, timeout=control.setting('timeout'))
 
             try:
                 result = result.decode('utf-8', errors='replace')

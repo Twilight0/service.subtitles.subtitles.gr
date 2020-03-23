@@ -18,6 +18,7 @@
 from __future__ import print_function, division
 
 from contextlib import closing
+import cloudscraper2
 import zipfile, re, sys, traceback
 from tulip import control, client, log
 from tulip.compat import unquote_plus, quote_plus, urlparse
@@ -59,9 +60,9 @@ class Subs4free:
             )
 
             try:
-                result = client.request(url).decode('iso-8859-7').encode('utf-8')
+                result = client.request(url, timeout=control.setting('timeout')).decode('iso-8859-7').encode('utf-8')
             except Exception:
-                result = client.request(url)
+                result = client.request(url, timeout=control.setting('timeout'))
 
             items = client.parseDOM(result, 'div', attrs={'onMouseOver': "this.className='highlight'"})
 
@@ -141,19 +142,16 @@ class Subs4free:
 
     def download(self, path, url):
 
-        cookie = client.request(url, output='cookie', close=False)
+        cookie = client.request(url, output='cookie', close=False, headers={'Referer': url}, timeout=control.setting('timeout'))
 
-        try:
-            html = client.request(url, cookie=cookie).decode('iso-8859-7').encode('utf-8')
-        except Exception:
-            html = client.request(url, cookie=cookie)
+        html = client.request(url, cookie=cookie, headers={'Referer': url, 'Accept': 'text/html,application/xhtml+xml'}, timeout=control.setting('timeout'))
 
         try:
             sub_id = '='.join(['id', client.parseDOM(html, 'input', attrs={'type': 'hidden'}, ret='value')[0]])
-            sub = client.request(url, post=sub_id, output='geturl', cookie=cookie, headers={'Referer': url})
+            sub = client.request(url, post=sub_id, output='geturl', cookie=cookie, referer=url)
         except IndexError:
             get_link = client.parseDOM(html, 'a', attrs={'rel': 'nofollow', 'class': 'style55ws'}, ret='href')[0]
-            sub = client.request(''.join([self.series_link, get_link]), output='geturl', cookie=cookie, headers={'Referer': url})
+            sub = client.request(''.join([self.series_link, get_link]), output='geturl', cookie=cookie, referer=url)
 
         try:
 

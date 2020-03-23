@@ -19,7 +19,7 @@
 '''
 
 import re, unicodedata
-from resources.lib import subtitlesgr, xsubstv, podnapisi, subs4free
+from resources.lib import subtitlesgr, xsubstv, podnapisi  #, subs4free
 from resources.lib.tools import syshandle, sysaddon, langs
 
 from tulip import control, workers, log, cache
@@ -52,9 +52,13 @@ class Search:
 
             control.execute('InstallAddon(vfs.libarchive)')
 
+        # threads = [
+        #     workers.Thread(self.xsubstv), workers.Thread(self.subtitlesgr), workers.Thread(self.podnapisi),
+        #     workers.Thread(self.subs4free)
+        # ]
+
         threads = [
-            workers.Thread(self.xsubstv), workers.Thread(self.subtitlesgr), workers.Thread(self.podnapisi),
-            workers.Thread(self.subs4free)
+            workers.Thread(self.xsubstv), workers.Thread(self.subtitlesgr), workers.Thread(self.podnapisi)
         ]
 
         dup_removal = False
@@ -97,11 +101,18 @@ class Search:
                 title_query = '{0} {1}'.format(tvshowtitle, title)
                 season_episode_query = '{0} S{1} E{2}'.format(tvshowtitle, season, episode)
 
+                # threads = [
+                #     workers.Thread(self.subtitlesgr, title_query), workers.Thread(self.subtitlesgr, season_episode_query),
+                #     workers.Thread(self.xsubstv, season_episode_query), workers.Thread(self.podnapisi, title_query),
+                #     workers.Thread(self.podnapisi, season_episode_query), workers.Thread(self.subs4free, title_query),
+                #     workers.Thread(self.subs4free, season_episode_query)
+                # ]
+
                 threads = [
-                    workers.Thread(self.subtitlesgr, title_query), workers.Thread(self.subtitlesgr, season_episode_query),
+                    workers.Thread(self.subtitlesgr, title_query),
+                    workers.Thread(self.subtitlesgr, season_episode_query),
                     workers.Thread(self.xsubstv, season_episode_query), workers.Thread(self.podnapisi, title_query),
-                    workers.Thread(self.podnapisi, season_episode_query), workers.Thread(self.subs4free, title_query),
-                    workers.Thread(self.subs4free, season_episode_query)
+                    workers.Thread(self.podnapisi, season_episode_query)
                 ]
 
                 dup_removal = True
@@ -152,7 +163,7 @@ class Search:
         f += [i for i in self.list if i['source'] == 'xsubstv']
         f += [i for i in self.list if i['source'] == 'subtitlesgr']
         f += [i for i in self.list if i['source'] == 'podnapisi']
-        f += [i for i in self.list if i['source'] == 'subs4free']
+        # f += [i for i in self.list if i['source'] == 'subs4free']
 
         self.list = f
 
@@ -243,27 +254,27 @@ class Search:
 
             pass
 
-    def subs4free(self, query=None):
-
-        if not query:
-
-            query = self.query
-
-        try:
-
-            if control.setting('subs4free') == 'false':
-                raise TypeError
-
-            if control.setting('cache') == 'true':
-                result = cache.get(subs4free.Subs4free().get, 2, query)
-            else:
-                result = subs4free.Subs4free().get(query)
-
-            self.list.extend(result)
-
-        except TypeError:
-
-            pass
+    # def subs4free(self, query=None):
+    #
+    #     if not query:
+    #
+    #         query = self.query
+    #
+    #     try:
+    #
+    #         if control.setting('subs4free') == 'false':
+    #             raise TypeError
+    #
+    #         if control.setting('cache') == 'true':
+    #             result = cache.get(subs4free.Subs4free().get, 2, query)
+    #         else:
+    #             result = subs4free.Subs4free().get(query)
+    #
+    #         self.list.extend(result)
+    #
+    #     except TypeError:
+    #
+    #         pass
 
     def xsubstv(self, query=None):
 
@@ -324,10 +335,10 @@ class Download:
         elif source == 'podnapisi':
 
             subtitle = podnapisi.Podnapisi().download(path, url)
-
-        elif source == 'subs4free':
-
-            subtitle = subs4free.Subs4free().download(path, url)
+        #
+        # elif source == 'subs4free':
+        #
+        #     subtitle = subs4free.Subs4free().download(path, url)
 
         else:
 

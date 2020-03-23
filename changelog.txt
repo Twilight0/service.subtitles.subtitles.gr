@@ -1,3 +1,9 @@
+[B]3.1.X[/B]
+- Tweaked regexes for searches
+- Added a setting allowing users to set search and download timeouts
+- Added visual feedback when deleting function cache
+- Disabled subs4free.info
+
 [B]3.0.X[/B]
 - Removed subzxyz (subtitles were moved to opensubtitles.org)
 - Bypassed subtitles.gr/findsubtitles.eu domain completely and removed its setting

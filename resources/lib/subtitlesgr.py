@@ -41,7 +41,7 @@ class Subtitlesgr:
 
             url = ''.join([self.base_link, '/search.php?name={0}'.format(quote_plus(query))])
 
-            result = client.request(url)
+            result = client.request(url, timeout=control.setting('timeout'))
 
             try:
                 result = result.decode('utf-8', errors='replace')
@@ -149,9 +149,9 @@ class Subtitlesgr:
 
             url = re.findall(r'/(\d+)/', url + '/', re.I)[-1]
             url = ''.join([self.download_link, '/getp.php?id={0}'.format(url)])
-            url = client.request(url, output='geturl')
+            url = client.request(url, output='geturl', timeout=control.setting('timeout'))
 
-            data = urlopen(url, timeout=20).read()
+            data = urlopen(url, timeout=int(control.setting('timeout'))).read()
             zip_file = zipfile.ZipFile(StringIO(data))
             files = zip_file.namelist()
             files = [i for i in files if i.startswith('subs/')]
