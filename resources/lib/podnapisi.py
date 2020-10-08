@@ -10,11 +10,10 @@
 
 from __future__ import print_function, division
 
-from contextlib import closing
 import zipfile, re, sys, traceback
 from tulip import control, client
 from tulip.log import log_debug
-from tulip.compat import unquote_plus, quote_plus, urlparse
+from tulip.compat import unquote_plus, quote_plus, urlparse, urlopen, StringIO
 
 
 class Podnapisi:
@@ -150,30 +149,16 @@ class Podnapisi:
 
         try:
 
-            client.retriever(url, filename)
-
-            zip_file = zipfile.ZipFile(filename)
+            data = urlopen(url, timeout=int(control.setting('timeout'))).read()
+            zip_file = zipfile.ZipFile(StringIO(data))
             files = zip_file.namelist()
             srt = [i for i in files if i.endswith(('.srt', '.sub'))][0]
             subtitle = control.join(path, srt)
 
             try:
-                zipped = zipfile.ZipFile(filename)
-                zipped.extractall(filename)
+                zip_file.extractall(path)
             except Exception:
                 control.execute('Extract("{0}","{1}")'.format(filename, path))
-
-            with closing(control.openFile(subtitle)) as fn:
-
-                try:
-                    output = bytes(fn.readBytes())
-                except Exception:
-                    output = bytes(fn.read())
-
-            content = output.decode('utf-16')
-
-            with closing(control.openFile(subtitle, 'w')) as subFile:
-                subFile.write(bytearray(content.encode('utf-8')))
 
             return subtitle
 
