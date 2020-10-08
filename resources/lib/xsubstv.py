@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
 
 '''
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    Subtitles.gr Addon
+    Author Twilight0
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    SPDX-License-Identifier: GPL-3.0-only
+    See LICENSES/GPL-3.0-only for more information.
 '''
 
 from __future__ import print_function
@@ -21,7 +14,8 @@ import re, traceback, sys
 from os.path import split as os_split
 from os import rename
 from tulip.compat import urlencode, zip
-from tulip import cache, cleantitle, client, control, log
+from tulip import cache, cleantitle, client, control
+from tulip.log import log_debug
 
 
 class Xsubstv:
@@ -40,7 +34,7 @@ class Xsubstv:
             try:
                 title, season, episode = re.findall(r'(.+?)[ .]s?(\d{1,2})(?: |.)?(?:ep?|x|\.)?(\d{1,2})?', query, flags=re.I)[0]
             except IndexError:
-                log.log_debug('Search query is not a tv show related, xsubs.tv does not offer movies\' subs')
+                log_debug("Search query is not a tv show related, xsubs.tv does not offer subs for movies")
                 return
 
             if season.startswith('0'):
@@ -75,7 +69,7 @@ class Xsubstv:
 
             print(traceback.print_tb(tb))
 
-            log.log('Xsubs.tv failed at get function, reason: ' + str(e))
+            log_debug('Xsubs.tv failed at get function, reason: ' + str(e))
 
             return
 
@@ -113,7 +107,7 @@ class Xsubstv:
 
                 print(traceback.print_tb(tb))
 
-                log.log('Xsubs.tv failed at self.list formation function, reason:  ' + str(e))
+                log_debug('Xsubs.tv failed at self.list formation function, reason:  ' + str(e))
 
                 return
 
@@ -137,7 +131,7 @@ class Xsubstv:
 
             print(traceback.print_tb(tb))
 
-            log.log('Xsubs.tv failed at cache function, reason:  ' + str(e))
+            log_debug('Xsubs.tv failed at cache function, reason:  ' + str(e))
 
             return
 
@@ -165,7 +159,7 @@ class Xsubstv:
 
             print(traceback.print_tb(tb))
 
-            log.log('Xsubs.tv failed at cookie function, reason: ' + str(e))
+            log_debug('Xsubs.tv failed at cookie function, reason: ' + str(e))
 
             return
 
@@ -220,6 +214,6 @@ class Xsubstv:
 
             print(traceback.print_tb(tb))
 
-            log.log('Xsubstv subtitle download failed for the following reason: ' + str(e))
+            log_debug('Xsubstv subtitle download failed for the following reason: ' + str(e))
 
             return

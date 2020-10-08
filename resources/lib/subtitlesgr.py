@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
 
 '''
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    Subtitles.gr Addon
+    Author Twilight0
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    SPDX-License-Identifier: GPL-3.0-only
+    See LICENSES/GPL-3.0-only for more information.
 '''
 
 from __future__ import print_function
@@ -21,7 +14,8 @@ from contextlib import closing
 from os.path import basename, split as os_split
 from resources.lib.tools import multichoice
 import zipfile, re, sys, traceback
-from tulip import control, client, log
+from tulip import control, client
+from tulip.log import log_debug
 from tulip.compat import unquote_plus, quote_plus, StringIO, urlopen, quote
 
 
@@ -50,13 +44,17 @@ class Subtitlesgr:
 
             items = client.parseDOM(result, 'tr', attrs={'on.+?': '.+?'})
 
+            if not items:
+                log_debug('Subtitles.gr did not provide any results')
+                return
+
         except Exception as e:
 
             _, __, tb = sys.exc_info()
 
             print(traceback.print_tb(tb))
 
-            log.log('Subtitles.gr failed at get function, reason: ' + str(e))
+            log_debug('Subtitles.gr failed at get function, reason: ' + str(e))
 
             return
 
@@ -114,7 +112,7 @@ class Subtitlesgr:
 
                 print(traceback.print_tb(tb))
 
-                log.log('Subtitles.gr failed at self.list formation function, reason: ' + str(e))
+                log_debug('Subtitles.gr failed at self.list formation function, reason: ' + str(e))
 
                 return
 
@@ -285,6 +283,6 @@ class Subtitlesgr:
 
             print(traceback.print_tb(tb))
 
-            log.log('Subtitles.gr subtitle download failed for the following reason: ' + str(e))
+            log_debug('Subtitles.gr subtitle download failed for the following reason: ' + str(e))
 
             return

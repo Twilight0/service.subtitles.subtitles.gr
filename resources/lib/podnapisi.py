@@ -1,25 +1,19 @@
 # -*- coding: utf-8 -*-
 
 '''
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    Subtitles.gr Addon
+    Author Twilight0
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    SPDX-License-Identifier: GPL-3.0-only
+    See LICENSES/GPL-3.0-only for more information.
 '''
 
 from __future__ import print_function, division
 
 from contextlib import closing
 import zipfile, re, sys, traceback
-from tulip import control, client, log
+from tulip import control, client
+from tulip.log import log_debug
 from tulip.compat import unquote_plus, quote_plus, urlparse
 
 
@@ -75,7 +69,10 @@ class Podnapisi:
                     ]
                 )
 
-            result = client.request(url, headers={'Accept': 'text/html', 'Accept-Language': 'en-US,en;q=0.9,el;q=0.8'}, timeout=control.setting('timeout'))
+            result = client.request(
+                url, headers={'Accept': 'text/html', 'Accept-Language': 'en-US,en;q=0.9,el;q=0.8'},
+                timeout=control.setting('timeout'), verify=False
+            )
 
             try:
                 result = result.decode('utf-8', errors='replace')
@@ -84,13 +81,17 @@ class Podnapisi:
 
             items = client.parseDOM(result, 'tr', attrs={'class': 'subtitle-entry'})
 
+            if not items:
+                log_debug('Podnapisi.net did not provide any results')
+                return
+
         except Exception as e:
 
             _, __, tb = sys.exc_info()
 
             print(traceback.print_tb(tb))
 
-            log.log('Podnapisi.net failed at get function, reason: ' + str(e))
+            log_debug('Podnapisi.net failed at get function, reason: ' + str(e))
 
             return
 
@@ -136,7 +137,7 @@ class Podnapisi:
 
                 print(traceback.print_tb(tb))
 
-                log.log('Podnapisi.net failed at self.list formation function, reason: ' + str(e))
+                log_debug('Podnapisi.net failed at self.list formation function, reason: ' + str(e))
 
                 return
 
@@ -182,6 +183,6 @@ class Podnapisi:
 
             print(traceback.print_tb(tb))
 
-            log.log('Podnapisi.net subtitle download failed for the following reason: ' + str(e))
+            log_debug('Podnapisi.net subtitle download failed for the following reason: ' + str(e))
 
             return

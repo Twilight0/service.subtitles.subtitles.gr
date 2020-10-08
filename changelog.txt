@@ -1,3 +1,9 @@
+[B]3.2.X[/B]
+- Bumped dependencies
+- Improved cache clear function
+- Added vipsubs.gr
+- Lots of bug fixes
+
 [B]3.1.X[/B]
 - Tweaked regexes for searches
 - Added a setting allowing users to set search and download timeouts

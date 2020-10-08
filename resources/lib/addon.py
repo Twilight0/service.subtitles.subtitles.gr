@@ -1,29 +1,20 @@
 # -*- coding: utf-8 -*-
 
 '''
-    Subtitles.gr
+    Subtitles.gr Addon
     Author Twilight0
 
-        License summary below, for more details please read license.txt file
-
-        This program is free software: you can redistribute it and/or modify
-        it under the terms of the GNU General Public License as published by
-        the Free Software Foundation, either version 2 of the License, or
-        (at your option) any later version.
-        This program is distributed in the hope that it will be useful,
-        but WITHOUT ANY WARRANTY; without even the implied warranty of
-        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-        GNU General Public License for more details.
-        You should have received a copy of the GNU General Public License
-        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    SPDX-License-Identifier: GPL-3.0-only
+    See LICENSES/GPL-3.0-only for more information.
 '''
 
 import re, unicodedata
-from resources.lib import subtitlesgr, xsubstv, podnapisi  #, subs4free
+from resources.lib import subtitlesgr, xsubstv, podnapisi, vipsubs
 from resources.lib.tools import syshandle, sysaddon, langs
 
-from tulip import control, workers, log, cache
+from tulip import control, workers, cache
 from tulip.compat import urlencode, range
+from tulip.log import log_debug
 
 
 class Search:
@@ -42,23 +33,14 @@ class Search:
 
             return
 
-        if not control.conditional_visibility(
-            'System.HasAddon(vfs.libarchive)'
-        ) and float(
-            control.addon('xbmc.addon').getAddonInfo('version')[:4]
-        ) >= 18.0 and not (
+        if control.kodi_version() >= 18.0 and not control.conditional_visibility('System.HasAddon(vfs.libarchive)') and not (
             control.condVisibility('System.Platform.Linux') or control.condVisibility('System.Platform.Linux.RaspberryPi')
         ):
-
             control.execute('InstallAddon(vfs.libarchive)')
 
-        # threads = [
-        #     workers.Thread(self.xsubstv), workers.Thread(self.subtitlesgr), workers.Thread(self.podnapisi),
-        #     workers.Thread(self.subs4free)
-        # ]
-
         threads = [
-            workers.Thread(self.xsubstv), workers.Thread(self.subtitlesgr), workers.Thread(self.podnapisi)
+            workers.Thread(self.xsubstv), workers.Thread(self.subtitlesgr), workers.Thread(self.podnapisi),
+            workers.Thread(self.vipsubs)
         ]
 
         dup_removal = False
@@ -101,22 +83,16 @@ class Search:
                 title_query = '{0} {1}'.format(tvshowtitle, title)
                 season_episode_query = '{0} S{1} E{2}'.format(tvshowtitle, season, episode)
 
-                # threads = [
-                #     workers.Thread(self.subtitlesgr, title_query), workers.Thread(self.subtitlesgr, season_episode_query),
-                #     workers.Thread(self.xsubstv, season_episode_query), workers.Thread(self.podnapisi, title_query),
-                #     workers.Thread(self.podnapisi, season_episode_query), workers.Thread(self.subs4free, title_query),
-                #     workers.Thread(self.subs4free, season_episode_query)
-                # ]
-
                 threads = [
-                    workers.Thread(self.subtitlesgr, title_query),
-                    workers.Thread(self.subtitlesgr, season_episode_query),
+                    workers.Thread(self.subtitlesgr, title_query), workers.Thread(self.subtitlesgr, season_episode_query),
                     workers.Thread(self.xsubstv, season_episode_query), workers.Thread(self.podnapisi, title_query),
-                    workers.Thread(self.podnapisi, season_episode_query)
+                    workers.Thread(self.podnapisi, season_episode_query), workers.Thread(self.vipsubs, title_query),
+                    workers.Thread(self.vipsubs, season_episode_query)
                 ]
 
                 dup_removal = True
-                log.log('Dual query used for subtitles search: ' + title_query + ' / ' + season_episode_query)
+
+                log_debug('Dual query used for subtitles search: ' + title_query + ' / ' + season_episode_query)
 
             elif year != '':  # movie
 
@@ -132,24 +108,24 @@ class Search:
 
         if not dup_removal:
 
-            log.log('Query used for subtitles search: ' + query)
+            log_debug('Query used for subtitles search: ' + query)
 
         self.query = query
 
         [i.start() for i in threads]
 
-        for c, i in list(enumerate(range(0, 40))):
+        for i in range(0, 40):
 
             is_alive = [x.is_alive() for x in threads]
 
-            if all(x is False for x in is_alive):
-                log.log('Reached count : ' + str(c))
+            if all(not x for x in is_alive):
+                log_debug('Counted results: ' + str(i))
                 break
             if control.aborted is True:
-                log.log('Aborted, reached count : ' + str(c))
+                log_debug('Aborted, reached count : ' + str(i))
                 break
 
-            control.sleep(200)
+            control.sleep(400)
 
         if len(self.list) == 0:
 
@@ -163,7 +139,7 @@ class Search:
         f += [i for i in self.list if i['source'] == 'xsubstv']
         f += [i for i in self.list if i['source'] == 'subtitlesgr']
         f += [i for i in self.list if i['source'] == 'podnapisi']
-        # f += [i for i in self.list if i['source'] == 'subs4free']
+        f += [i for i in self.list if i['source'] == 'vipsubs']
 
         self.list = f
 
@@ -179,8 +155,8 @@ class Search:
                     i['name'] = u'[xsubstv] {0}'.format(i['name'])
                 elif i['source'] == 'podnapisi':
                     i['name'] = u'[podnapisi] {0}'.format(i['name'])
-                elif i['source'] == 'subs4free':
-                    i['name'] = u'[subs4free] {0}'.format(i['name'])
+                elif i['source'] == 'vipsubs':
+                    i['name'] = u'[vipsubs] {0}'.format(i['name'])
 
             except Exception:
 
@@ -254,27 +230,27 @@ class Search:
 
             pass
 
-    # def subs4free(self, query=None):
-    #
-    #     if not query:
-    #
-    #         query = self.query
-    #
-    #     try:
-    #
-    #         if control.setting('subs4free') == 'false':
-    #             raise TypeError
-    #
-    #         if control.setting('cache') == 'true':
-    #             result = cache.get(subs4free.Subs4free().get, 2, query)
-    #         else:
-    #             result = subs4free.Subs4free().get(query)
-    #
-    #         self.list.extend(result)
-    #
-    #     except TypeError:
-    #
-    #         pass
+    def vipsubs(self, query=None):
+
+        if not query:
+
+            query = self.query
+
+        try:
+
+            if control.setting('vipsubs') == 'false':
+                raise TypeError
+
+            if control.setting('cache') == 'true':
+                result = cache.get(vipsubs.Vipsubs().get, 2, query)
+            else:
+                result = vipsubs.Vipsubs().get(query)
+
+            self.list.extend(result)
+
+        except TypeError:
+
+            pass
 
     def xsubstv(self, query=None):
 
@@ -308,6 +284,8 @@ class Download:
     @staticmethod
     def run(url, source):
 
+        log_debug('Source selected: {0}'.format(source))
+
         path = control.join(control.dataPath, 'temp')
 
         try:
@@ -335,10 +313,10 @@ class Download:
         elif source == 'podnapisi':
 
             subtitle = podnapisi.Podnapisi().download(path, url)
-        #
-        # elif source == 'subs4free':
-        #
-        #     subtitle = subs4free.Subs4free().download(path, url)
+
+        elif source == 'vipsubs':
+
+            subtitle = vipsubs.Vipsubs().download(path, url)
 
         else:
 
