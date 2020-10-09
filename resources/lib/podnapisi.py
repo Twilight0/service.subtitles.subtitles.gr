@@ -155,10 +155,7 @@ class Podnapisi:
             srt = [i for i in files if i.endswith(('.srt', '.sub'))][0]
             subtitle = control.join(path, srt)
 
-            try:
-                zip_file.extractall(path)
-            except Exception:
-                control.execute('Extract("{0}","{1}")'.format(filename, path))
+            zip_file.extractall(path)
 
             return subtitle
 

@@ -199,11 +199,8 @@ class Subtitlesgr:
 
                 if zipfile.is_zipfile(f):
 
-                    try:
-                        zipped = zipfile.ZipFile(f)
-                        zipped.extractall(path)
-                    except Exception:
-                        control.execute('Extract("{0}","{1}")'.format(f, path))
+                    zipped = zipfile.ZipFile(f)
+                    zipped.extractall(path)
 
                 if not zipfile.is_zipfile(f):
 

@@ -12,7 +12,7 @@ from __future__ import print_function, division
 
 from resources.lib.tools import multichoice
 from contextlib import closing
-import zipfile, re, sys, traceback
+import zipfile, re, sys, traceback, os
 from tulip import control, client
 from tulip.log import log_debug
 from tulip.compat import unquote_plus, quote_plus, urlparse, urlopen, StringIO
@@ -140,22 +140,37 @@ class Vipsubs:
 
             else:
 
-                zip_file = zipfile.ZipFile(filename)
+                if zipfile.is_zipfile(filename):
+                    zip_file = zipfile.ZipFile(filename)
+                else:
+                    log_debug('Failed to load zip with regular python library, attempting built-in method')
+                    control.execute('Extract({0},{1})'.format(filename, path))
+                    zip_file = None
 
-            files = zip_file.namelist()
+            if zip_file:
 
-            subs = [i for i in files if i.endswith(('.srt', '.sub', '.zip'))]
+                files = zip_file.namelist()
+                subs = [i for i in files if i.endswith(('.srt', '.sub', '.zip'))]
+
+            else:
+
+                subs = []
+                for root, _, file_ in os.walk(path):
+                    for f in file_:
+                        subs.append(os.path.join(root, f))
 
             subtitle = multichoice(subs)
 
             if not subtitle:
                 return
 
-            try:
-                zip_file.extract(subtitle, path)
-            except Exception:
-                path = path.encode('utf-8')
-                zip_file.extract(subtitle, path)
+            if zip_file:
+
+                try:
+                    zip_file.extract(subtitle, path)
+                except Exception:
+                    path = path.encode('utf-8')
+                    zip_file.extract(subtitle, path)
 
             subtitle = control.join(path, subtitle)
 
