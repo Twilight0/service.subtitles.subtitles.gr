@@ -1,3 +1,6 @@
+[B]3.2.2[/B]
+- Do not allow random choice when not necessary
+
 [B]3.2.1[/B]
 - Added capability for nested zips on vipsubs.gr
 - Skip certain results not containing subtitles on vipsubs.gr
