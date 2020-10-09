@@ -15,7 +15,7 @@ from contextlib import closing
 import zipfile, re, sys, traceback
 from tulip import control, client
 from tulip.log import log_debug
-from tulip.compat import unquote_plus, quote_plus, urlparse
+from tulip.compat import unquote_plus, quote_plus, urlparse, urlopen, StringIO
 from tulip.parsers import itertags_wrapper
 
 
@@ -119,7 +119,7 @@ class Vipsubs:
 
         return self.list
 
-    def download(self, path, url, join=False):
+    def download(self, path, url):
 
         if url.startswith('http'):
 
@@ -135,9 +135,13 @@ class Vipsubs:
             if url.startswith('http'):
 
                 sub = client.request(url, output='geturl', timeout=control.setting('timeout'))
-                client.retriever(sub, filename)
+                data = urlopen(sub, timeout=int(control.setting('timeout'))).read()
+                zip_file = zipfile.ZipFile(StringIO(data))
 
-            zip_file = zipfile.ZipFile(filename)
+            else:
+
+                zip_file = zipfile.ZipFile(filename)
+
             files = zip_file.namelist()
 
             subs = [i for i in files if i.endswith(('.srt', '.sub', '.zip'))]
@@ -153,12 +157,11 @@ class Vipsubs:
                 path = path.encode('utf-8')
                 zip_file.extract(subtitle, path)
 
-            if join:
-                subtitle = control.join(path, subtitle)
+            subtitle = control.join(path, subtitle)
 
             if subtitle.endswith('.zip'):
 
-                return self.download(path, subtitle, join=True)
+                return self.download(path, subtitle)
 
             else:
 

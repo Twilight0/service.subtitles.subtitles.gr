@@ -1,3 +1,6 @@
+[B]3.2.3[/B]
+- Bug fixes for vipsubs.gr
+
 [B]3.2.2[/B]
 - Do not allow random choice when not necessary
 
