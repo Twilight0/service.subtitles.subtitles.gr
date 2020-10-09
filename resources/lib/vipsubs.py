@@ -10,6 +10,7 @@
 
 from __future__ import print_function, division
 
+from resources.lib.tools import multichoice
 from contextlib import closing
 import zipfile, re, sys, traceback
 from tulip import control, client
@@ -87,9 +88,14 @@ class Vipsubs:
 
         for item in items:
 
+            if 'dropbox' not in item:
+                continue
+
             try:
 
                 label = itertags_wrapper(item, 'a', attrs={'rel': "bookmark"})[0].text
+
+                label = client.replaceHTMLCodes(label)
 
                 url = itertags_wrapper(item, 'a', ret='href')[-1]
                 rating = 10.0
@@ -113,42 +119,67 @@ class Vipsubs:
 
         return self.list
 
-    def download(self, path, url):
+    def download(self, path, url, join=False):
 
-        filename = '.'.join(urlparse(url).path.split('/')[3:5])
+        if url.startswith('http'):
 
-        filename = control.join(path, filename)
+            filename = '.'.join(urlparse(url).path.split('/')[3:5])
+            filename = control.join(path, filename)
+
+        else:
+
+            filename = control.join(path, url)
 
         try:
 
-            sub = client.request(url, output='geturl', timeout=control.setting('timeout'))
+            if url.startswith('http'):
 
-            client.retriever(sub, filename)
+                sub = client.request(url, output='geturl', timeout=control.setting('timeout'))
+                client.retriever(sub, filename)
 
             zip_file = zipfile.ZipFile(filename)
             files = zip_file.namelist()
-            srt = [i for i in files if i.endswith(('.srt', '.sub'))][0]
-            subtitle = control.join(path, srt)
+
+            subs = [i for i in files if i.endswith(('.srt', '.sub', '.zip'))]
+
+            subtitle = multichoice(subs)
+
+            if not subtitle:
+                return
 
             try:
-                zipped = zipfile.ZipFile(filename)
-                zipped.extractall(filename)
+                zip_file.extract(subtitle, path)
             except Exception:
-                control.execute('Extract("{0}","{1}")'.format(filename, path))
+                path = path.encode('utf-8')
+                zip_file.extract(subtitle, path)
 
-            with closing(control.openFile(subtitle)) as fn:
+            if join:
+                subtitle = control.join(path, subtitle)
+
+            if subtitle.endswith('.zip'):
+
+                return self.download(path, subtitle, join=True)
+
+            else:
 
                 try:
-                    output = bytes(fn.readBytes())
+
+                    with closing(control.openFile(subtitle)) as fn:
+
+                        try:
+                            output = bytes(fn.readBytes())
+                        except Exception:
+                            output = bytes(fn.read())
+
+                    content = output.decode('utf-16')
+
+                    with closing(control.openFile(subtitle, 'w')) as subFile:
+                        subFile.write(bytearray(content.encode('utf-8')))
+
                 except Exception:
-                    output = bytes(fn.read())
+                    pass
 
-            content = output.decode('utf-16')
-
-            with closing(control.openFile(subtitle, 'w')) as subFile:
-                subFile.write(bytearray(content.encode('utf-8')))
-
-            return subtitle
+                return subtitle
 
         except Exception as e:
 

@@ -1,4 +1,8 @@
-[B]3.2.X[/B]
+[B]3.2.1[/B]
+- Added capability for nested zips on vipsubs.gr
+- Skip certain results not containing subtitles on vipsubs.gr
+
+[B]3.2.0[/B]
 - Bumped dependencies
 - Improved cache clear function
 - Added vipsubs.gr

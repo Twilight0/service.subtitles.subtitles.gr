@@ -25,13 +25,18 @@ query = params.get('searchstring')
 langs = params.get('languages')
 
 
-def multichoice(filenames):
+def multichoice(filenames, allow_random=False):
 
     if filenames is None or len(filenames) == 0:
 
         return
 
     elif len(filenames) >= 1:
+
+        if allow_random:
+            length = len(filenames) + 1
+        else:
+            length = len(filenames)
 
         if len(filenames) == 1:
             return filenames[0]
@@ -43,11 +48,20 @@ def multichoice(filenames):
         _choice = control.selectDialog(heading=control.lang(32214), list=choices)
 
         if _choice == 0:
-            filename = choice(filenames)
-        elif _choice != -1 and _choice <= len(filenames) + 1:
-            filename = filenames[_choice - 1]
+            if allow_random:
+                filename = choice(filenames)
+            else:
+                filename = filenames[0]
+        elif _choice != -1 and _choice <= length:
+            if allow_random:
+                filename = filenames[_choice - 1]
+            else:
+                filename = filenames[_choice]
         else:
-            filename = choice(filenames)
+            if allow_random:
+                filename = choice(filenames)
+            else:
+                return
 
         return filename
 
