@@ -44,9 +44,9 @@ def multichoice(filenames, allow_random=False):
         choices = [os_split(i)[1] for i in filenames]
 
         if allow_random:
-            choices.insert(0, control.lang(32215))
+            choices.insert(0, control.lang(30215))
 
-        _choice = control.selectDialog(heading=control.lang(32214), list=choices)
+        _choice = control.selectDialog(heading=control.lang(30214), list=choices)
 
         if _choice == 0:
             if allow_random:

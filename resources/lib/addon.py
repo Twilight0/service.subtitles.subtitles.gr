@@ -29,7 +29,7 @@ class Search:
         if 'Greek' not in str(langs).split(','):
 
             control.directory(syshandle)
-            control.infoDialog(control.lang(32002))
+            control.infoDialog(control.lang(30002))
 
             return
 
@@ -82,17 +82,27 @@ class Search:
 
                 title_query = '{0} {1}'.format(tvshowtitle, title)
                 season_episode_query = '{0} S{1} E{2}'.format(tvshowtitle, season, episode)
+                season_episode_query_nospace = '{0} S{1}E{2}'.format(tvshowtitle, season, episode)
 
                 threads = [
-                    workers.Thread(self.subtitlesgr, title_query), workers.Thread(self.subtitlesgr, season_episode_query),
-                    workers.Thread(self.xsubstv, season_episode_query), workers.Thread(self.podnapisi, title_query),
-                    workers.Thread(self.podnapisi, season_episode_query), workers.Thread(self.vipsubs, title_query),
+                    workers.Thread(self.subtitlesgr, season_episode_query_nospace),
+                    workers.Thread(self.xsubstv, season_episode_query),
+                    workers.Thread(self.podnapisi, season_episode_query),
                     workers.Thread(self.vipsubs, season_episode_query)
                 ]
 
-                dup_removal = True
+                if control.setting('queries') == 'true':
 
-                log_debug('Dual query used for subtitles search: ' + title_query + ' / ' + season_episode_query)
+                    threads.extend(
+                        [
+                            workers.Thread(self.subtitlesgr, title_query),workers.Thread(self.vipsubs, title_query),
+                            workers.Thread(self.podnapisi, title_query), workers.Thread(self.subtitlesgr, season_episode_query)
+                        ]
+                    )
+
+                    dup_removal = True
+
+                    log_debug('Dual query used for subtitles search: ' + title_query + ' / ' + season_episode_query)
 
             elif year != '':  # movie
 

@@ -18,82 +18,86 @@ msgstr ""
 msgid ""
 msgstr ""
 
-msgctxt "#32001"
+msgctxt "#30001"
 msgid "Error searching for subtitles"
 msgstr "Αδύνατη η εύρεση υποτίτλων"
 
-msgctxt "#32002"
+msgctxt "#30002"
 msgid "This service is only for Greek subtitles"
 msgstr "Υπηρεσία μόνο ελληνικών υποτίτλων"
 
-msgctxt "#32003"
+msgctxt "#30003"
 msgid "Cache results"
 msgstr "Αποθήκευση αποτελεσμάτων"
 
-msgctxt "#32211"
+msgctxt "#30211"
 msgid "Accounts"
 msgstr "Λογαριασμοί"
 
-msgctxt "#32212"
+msgctxt "#30212"
 msgid "User"
 msgstr "Χρήστης"
 
-msgctxt "#32213"
+msgctxt "#30213"
 msgid "Password"
 msgstr "Κωδικός"
 
-msgctxt "#32214"
+msgctxt "#30214"
 msgid "Package contains multiple subtitles"
 msgstr "Το πακέτο περιέχει πολλαπλούς υποτίτλους"
 
-msgctxt "#32215"
+msgctxt "#30215"
 msgid "Random choice"
 msgstr "Τυχαία επιλογή"
 
-msgctxt "#32216"
+msgctxt "#30216"
 msgid "Actions"
 msgstr "Ενέργειες"
 
-msgctxt "#32217"
+msgctxt "#30217"
 msgid "Delete function cache"
 msgstr "Διαγραφή μνήμης λειτουργιών"
 
-msgctxt "#32218"
+msgctxt "#30218"
 msgid "Domains"
 msgstr "Ιστότοποι"
 
-msgctxt "#32219"
+msgctxt "#30219"
 msgid "Options"
 msgstr "Επιλογές"
 
-msgctxt "#32220"
+msgctxt "#30220"
 msgid "Sorting"
 msgstr "Ταξινόμιση"
 
-msgctxt "#32221"
+msgctxt "#30221"
 msgid "Name"
 msgstr "Όνομα"
 
-msgctxt "#32222"
+msgctxt "#30222"
 msgid "Source"
 msgstr "Πηγή"
 
-msgctxt "#32223"
+msgctxt "#30223"
 msgid "Downloads"
 msgstr "Μεταφορτώσεις"
 
-msgctxt "#32224"
+msgctxt "#30224"
 msgid "Rating"
 msgstr "Αξιολόγηση"
 
-msgctxt "#32225"
+msgctxt "#30225"
 msgid "Disable for faster searches"
 msgstr "Ταχύτερες αναζητήσεις με απενεργοποίηση"
 
-msgctxt "#32226"
+msgctxt "#30226"
 msgid "Timeout in seconds"
 msgstr "Χρόνος λήξης σε δευτερόλεπτα"
 
-msgctxt "#32227"
+msgctxt "#30227"
 msgid "Page requires human verification[CR]subtitle cannot be downloaded at this moment"
 msgstr "Η σελίδα ζητάει επαλήθευση χρήστη[CR]]ο υπότιτλος δεν μπορεί να μεταφορτωθεί αυτήν την στιγμή"
+
+msgctxt ""30228"
+msgid "Increase search queries for episode titles"
+msgstr ""
