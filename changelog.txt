@@ -1,3 +1,6 @@
+[B]3.3.1[/B]
+- Added the forgotten string
+
 [B]3.3.0[/B]
 - Improved search query function, added accompanying option
 

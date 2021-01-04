@@ -100,4 +100,4 @@ msgstr "Η σελίδα ζητάει επαλήθευση χρήστη[CR]]ο υ
 
 msgctxt ""30228"
 msgid "Increase search queries for episode titles"
-msgstr ""
+msgstr "Αύξηση όρων αναζήτησης για τους τίτλους επεισοδίων"
