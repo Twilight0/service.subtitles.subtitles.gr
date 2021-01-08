@@ -144,9 +144,6 @@ class Podnapisi:
 
     def download(self, path, url):
 
-        filename = '.'.join(urlparse(url).path.split('/')[3:5] + ['zip'])
-        filename = control.join(path, filename)
-
         try:
 
             data = urlopen(url, timeout=int(control.setting('timeout'))).read()

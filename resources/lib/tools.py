@@ -8,21 +8,9 @@
     See LICENSES/GPL-3.0-only for more information.
 '''
 
-import sys
 from random import choice
 from os.path import split as os_split
 from tulip import control
-from tulip.compat import parse_qsl
-
-syshandle = int(sys.argv[1])
-sysaddon = sys.argv[0]
-params = dict(parse_qsl(sys.argv[2].replace('?', '')))
-
-action = params.get('action')
-source = params.get('source')
-url = params.get('url')
-query = params.get('searchstring')
-langs = params.get('languages')
 
 
 def multichoice(filenames, allow_random=False):

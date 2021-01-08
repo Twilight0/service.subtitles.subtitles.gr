@@ -8,19 +8,26 @@
     See LICENSES/GPL-3.0-only for more information.
 '''
 
-
-from resources.lib.tools import action, query, url, source
+import sys
 from resources.lib.addon import Search, Download
+from tulip.compat import parse_qsl
+
+syshandle = int(sys.argv[1])
+sysaddon = sys.argv[0]
+params = dict(parse_qsl(sys.argv[2].replace('?', '')))
+
+action = params.get('action')
+source = params.get('source')
+url = params.get('url')
+query = params.get('searchstring')
+langs = params.get('languages')
 
 ########################################################################################################################
 
-if action in [None, 'search']:
-    Search().run()
-
-elif action == 'manualsearch':
-    Search().run(query)
+if action in [None, 'search', 'manualsearch']:
+    Search(syshandle, sysaddon, langs, action).run(query)
 
 elif action == 'download':
-    Download().run(url, source)
+    Download(syshandle, sysaddon).run(url, source)
 
 ########################################################################################################################

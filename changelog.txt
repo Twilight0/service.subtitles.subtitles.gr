@@ -1,3 +1,7 @@
+[B]3.4.0[/B]
+- Code related tweaks, particularly how routing is handled
+- Added ability to save subtitles and/or zips from sources
+
 [B]3.3.1[/B]
 - Added the forgotten string
 

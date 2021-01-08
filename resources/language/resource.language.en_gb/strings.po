@@ -2,9 +2,6 @@
 # Addon id: service.subtitles.subtitles.gr
 # Addon Provider: Twilight0
 
-msgid ""
-msgstr ""
-
 "Project-Id-Version: Subtitles.gr\n"
 "POT-Creation-Date: 2016-06-22 11:29+0000\n"
 "PO-Revision-Date: 2020-07-16 11:29+0000\n"
@@ -30,6 +27,26 @@ msgstr ""
 msgctxt "#30003"
 msgid "Cache results"
 msgstr ""
+
+msgctxt "#30004"
+msgid "Keep subtitles"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Output folder"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Keep zips (multipacks, vipsubs only)"
+msgstr ""
+
+msgctxt "#30007"
+msgid "Zip saved, you can now select cancel if you want"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Subtitle has been saved"
+msgstr "Ο υπότιτλος αποθηκεύτηκε"
 
 msgctxt "#30211"
 msgid "Accounts"

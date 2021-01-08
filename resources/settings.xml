@@ -4,7 +4,7 @@
 		<setting type="lsep" label="30225"/>
 		<setting id="subtitles" label="Subtitles.gr" type="bool" default="true"/>
 		<setting id="xsubs" label="Xsubs.tv" type="bool" default="true"/>
-		<setting id="podnapisi" label="Podnapisi.net" type="bool" default="false"/>
+		<setting id="podnapisi" label="Podnapisi.net" type="bool" default="true"/>
 		<setting id="vipsubs" label="Vipsubs.gr" type="bool" default="true"/>
 	</category>
 	<category label="30219">
@@ -12,6 +12,9 @@
 		<setting id="cache" label="30003" type="bool" default="true"/>
 		<setting id="queries" label="30228" type="bool" default="true"/>
 		<setting id="timeout" type="slider" label="30226" default="30" range="10,10,120" option="int"/>
+		<setting id="keep_subs" label="30004" type="bool" default="false"/>
+		<setting id="keep_zips" label="30006" type="bool" default="false"/>
+		<setting id="output_folder" label="30005" type="file" default="special://profile/addon_data/service.subtitles.subtitles.gr/saved/" visible="eq(-2,true) | eq(-1,true)"/>
 	</category>
 	<category label="30211">
 		<setting type="lsep" label="xsubs.tv" />

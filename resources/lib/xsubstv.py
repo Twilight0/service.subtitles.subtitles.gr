@@ -52,7 +52,10 @@ class Xsubstv:
 
             result = client.request(url)
 
-            ssnid = client.parseDOM(result, 'series_group', ret='ssnid', attrs={'ssnnum': season})[0]
+            try:
+                ssnid = client.parseDOM(result, 'series_group', ret='ssnid', attrs={'ssnnum': season})[0]
+            except IndexError:
+                return
 
             url = ''.join([self.base_link, '/series/{0}/{1}.xml'.format(srsid, ssnid)])
 

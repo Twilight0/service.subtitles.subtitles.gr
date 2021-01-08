@@ -9,32 +9,37 @@
 '''
 
 import re, unicodedata
+from shutil import copy
+from os.path import split as os_split
 from resources.lib import subtitlesgr, xsubstv, podnapisi, vipsubs
-from resources.lib.tools import syshandle, sysaddon, langs
 
-from tulip import control, workers, cache
+from tulip import workers, cache, control
 from tulip.compat import urlencode, range
 from tulip.log import log_debug
 
 
 class Search:
 
-    def __init__(self):
+    def __init__(self, syshandle, sysaddon, langs, action):
 
         self.list = []
         self.query = None
+        self.syshandle = syshandle
+        self.sysaddon = sysaddon
+        self.langs = langs
+        self.action = action
 
     def run(self, query=None):
 
-        if 'Greek' not in str(langs).split(','):
+        if 'Greek' not in str(self.langs).split(','):
 
-            control.directory(syshandle)
+            control.directory(self.syshandle)
             control.infoDialog(control.lang(30002))
 
             return
 
         if control.kodi_version() >= 18.0 and not control.conditional_visibility('System.HasAddon(vfs.libarchive)') and not (
-            control.condVisibility('System.Platform.Linux') or control.condVisibility('System.Platform.Linux.RaspberryPi')
+            control.condVisibility('System.Platform.Linux')
         ):
             control.execute('InstallAddon(vfs.libarchive)')
 
@@ -139,7 +144,7 @@ class Search:
 
         if len(self.list) == 0:
 
-            control.directory(syshandle)
+            control.directory(self.syshandle)
 
             return
 
@@ -186,15 +191,15 @@ class Search:
         for i in self.list:
 
             u = {'action': 'download', 'url': i['url'], 'source': i['source']}
-            u = '{0}?{1}'.format(sysaddon, urlencode(u))
+            u = '{0}?{1}'.format(self.sysaddon, urlencode(u))
 
             item = control.item(label='Greek', label2=i['name'], iconImage=str(i['rating'])[:1], thumbnailImage='el')
             item.setProperty('sync', 'false')
             item.setProperty('hearing_imp', 'false')
 
-            control.addItem(handle=syshandle, url=u, listitem=item, isFolder=False)
+            control.addItem(handle=self.syshandle, url=u, listitem=item, isFolder=False)
 
-        control.directory(syshandle)
+        control.directory(self.syshandle)
 
     def subtitlesgr(self, query=None):
 
@@ -287,12 +292,12 @@ class Search:
 
 class Download:
 
-    def __init__(self):
+    def __init__(self, syshandle, sysaddon):
 
-        pass
+        self.syshandle = syshandle
+        self.sysaddon = sysaddon
 
-    @staticmethod
-    def run(url, source):
+    def run(self, url, source):
 
         log_debug('Source selected: {0}'.format(source))
 
@@ -311,6 +316,15 @@ class Download:
         control.makeFile(control.dataPath)
 
         control.makeFile(path)
+
+        if control.setting('keep_subs') == 'true' or control.setting('keep_zips') == 'true':
+
+            if control.setting('output_folder').startswith('special://'):
+                output_path = control.transPath(control.setting('output_folder'))
+            else:
+                output_path = control.setting('output_folder')
+
+            control.makeFile(output_path)
 
         if source == 'subtitlesgr':
 
@@ -334,7 +348,13 @@ class Download:
 
         if subtitle is not None:
 
-            item = control.item(label=subtitle)
-            control.addItem(handle=syshandle, url=subtitle, listitem=item, isFolder=False)
+            if control.setting('keep_subs') == 'true':
 
-        control.directory(syshandle)
+                # noinspection PyUnboundLocalVariable
+                copy(subtitle, control.join(output_path, os_split(subtitle)[1]))
+                control.infoDialog(control.lang(30008))
+
+            item = control.item(label=subtitle)
+            control.addItem(handle=self.syshandle, url=subtitle, listitem=item, isFolder=False)
+
+        control.directory(self.syshandle)

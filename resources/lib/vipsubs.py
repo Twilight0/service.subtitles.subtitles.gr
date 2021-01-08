@@ -123,8 +123,8 @@ class Vipsubs:
 
         if url.startswith('http'):
 
-            filename = '.'.join(urlparse(url).path.split('/')[3:5])
-            filename = control.join(path, filename)
+            _filename = '.'.join(urlparse(url).path.split('/')[3:5])
+            filename = control.join(path, _filename)
 
         else:
 
@@ -137,6 +137,22 @@ class Vipsubs:
                 sub = client.request(url, output='geturl', timeout=control.setting('timeout'))
                 data = urlopen(sub, timeout=int(control.setting('timeout'))).read()
                 zip_file = zipfile.ZipFile(StringIO(data))
+
+                if control.setting('keep_zips') == 'true':
+
+                    if control.setting('output_folder').startswith('special://'):
+                        output_path = control.transPath(control.setting('output_folder'))
+                    else:
+                        output_path = control.setting('output_folder')
+                    if not os.path.exists(output_path):
+                        control.makeFile(output_path)
+                    # noinspection PyUnboundLocalVariable
+                    output_filename = control.join(output_path, _filename)
+
+                    with open(output_filename, 'wb') as f:
+                        f.write(data)
+
+                    control.infoDialog(control.lang(30007))
 
             else:
 
