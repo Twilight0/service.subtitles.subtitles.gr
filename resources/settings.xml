@@ -14,7 +14,7 @@
 		<setting id="timeout" type="slider" label="30226" default="30" range="10,10,120" option="int"/>
 		<setting id="keep_subs" label="30004" type="bool" default="false"/>
 		<setting id="keep_zips" label="30006" type="bool" default="false"/>
-		<setting id="output_folder" label="30005" type="file" default="special://profile/addon_data/service.subtitles.subtitles.gr/saved/" visible="eq(-2,true) | eq(-1,true)"/>
+		<setting id="output_folder" label="30005" type="folder" default="special://profile/addon_data/service.subtitles.subtitles.gr/saved/" visible="eq(-2,true) | eq(-1,true)" option="writeable" source="auto" />
 	</category>
 	<category label="30211">
 		<setting type="lsep" label="xsubs.tv" />

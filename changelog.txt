@@ -1,4 +1,4 @@
-[B]3.4.0[/B]
+[B]3.4.0 - 3.4.1[/B]
 - Code related tweaks, particularly how routing is handled
 - Added ability to save subtitles and/or zips from sources
 
