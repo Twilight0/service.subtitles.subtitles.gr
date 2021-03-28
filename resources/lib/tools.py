@@ -10,7 +10,9 @@
 
 from random import choice
 from os.path import split as os_split
-from tulip import control
+from tulip import control, cache
+
+cache_method = cache.FunctionCache().cache_method
 
 
 def multichoice(filenames, allow_random=False):
@@ -57,3 +59,11 @@ def multichoice(filenames, allow_random=False):
     else:
 
         return
+
+
+def cache_duration(duration):
+
+    if control.setting('cache') == 'true':
+        return duration
+    else:
+        return 0

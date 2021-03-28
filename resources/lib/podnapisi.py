@@ -13,7 +13,9 @@ from __future__ import print_function, division
 import zipfile, re, sys, traceback
 from tulip import control, client
 from tulip.log import log_debug
-from tulip.compat import unquote_plus, quote_plus, urlparse, urlopen, StringIO
+from tulip.compat import unquote_plus, quote_plus, urlopen, BytesIO, Request, py3_dec
+from tulip.user_agents import randomagent
+from resources.lib.tools import cache_method, cache_duration
 
 
 class Podnapisi:
@@ -24,7 +26,10 @@ class Podnapisi:
         self.base_link = 'https://www.podnapisi.net'
         self.search_link = ''.join([self.base_link, '/en/subtitles/search/'])
 
+    @cache_method(cache_duration(440))
     def get(self, query):
+
+        query = py3_dec(query)
 
         try:
 
@@ -146,8 +151,12 @@ class Podnapisi:
 
         try:
 
-            data = urlopen(url, timeout=int(control.setting('timeout'))).read()
-            zip_file = zipfile.ZipFile(StringIO(data))
+            req = Request(url)
+            req.add_header('User-Agent', randomagent())
+            opener = urlopen(req)
+            data = opener.read()
+            zip_file = zipfile.ZipFile(BytesIO(data))
+            opener.close()
             files = zip_file.namelist()
             srt = [i for i in files if i.endswith(('.srt', '.sub'))][0]
             subtitle = control.join(path, srt)

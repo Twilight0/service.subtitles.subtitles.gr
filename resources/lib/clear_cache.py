@@ -8,35 +8,19 @@
     See LICENSES/GPL-3.0-only for more information.
 '''
 
+from shutil import rmtree
 from xbmc import translatePath
 from xbmcgui import Dialog
-
-try:
-    from sqlite3 import dbapi2 as database
-except ImportError:
-    from pysqlite2 import dbapi2 as database
 
 
 def action():
 
-    table = ['rel_list', 'rel_lib']
+    filepath = translatePath('special://profile/addon_data/service.subtitles.subtitles.gr/cache')
 
-    filename = translatePath('special://profile/addon_data/service.subtitles.subtitles.gr/cache.db')
-
-    dbcon = database.connect(filename)
-    dbcur = dbcon.cursor()
-
-    for t in table:
-
-        try:
-
-            dbcur.execute("DROP TABLE IF EXISTS {0}".format(t))
-            dbcur.execute("VACUUM")
-            dbcon.commit()
-
-        except BaseException:
-
-            pass
+    try:
+        rmtree(filepath)
+    except Exception:
+        pass
 
 
 if __name__ == '__main__':

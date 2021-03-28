@@ -10,13 +10,14 @@
 
 from __future__ import print_function, division
 
-from resources.lib.tools import multichoice
+from resources.lib.tools import multichoice, cache_method, cache_duration
 from contextlib import closing
 import zipfile, re, sys, traceback, os
 from tulip import control, client
 from tulip.log import log_debug
-from tulip.compat import unquote_plus, quote_plus, urlparse, urlopen, StringIO
+from tulip.compat import unquote_plus, quote_plus, urlparse, urlopen, Request, BytesIO, py3_dec, is_py3
 from tulip.parsers import itertags_wrapper
+from tulip.user_agents import randomagent
 
 
 class Vipsubs:
@@ -28,7 +29,10 @@ class Vipsubs:
         self.search_movie = ''.join([self.base_link, '/search/{0}/'])
         self.search_show = ''.join([self.base_link, '/?s={0}'])
 
+    @cache_method(cache_duration(440))
     def get(self, query):
+
+        query = py3_dec(query)
 
         try:
 
@@ -135,8 +139,17 @@ class Vipsubs:
             if url.startswith('http'):
 
                 sub = client.request(url, output='geturl', timeout=control.setting('timeout'))
-                data = urlopen(sub, timeout=int(control.setting('timeout'))).read()
-                zip_file = zipfile.ZipFile(StringIO(data))
+                if is_py3:  # Kodi 19+
+                    client.retriever(sub, filename)
+                    zip_file = zipfile.ZipFile(filename)
+                    data = None
+                else:
+                    req = Request(sub)
+                    req.add_header('User-Agent', randomagent())
+                    opener = urlopen(req)
+                    data = opener.read()
+                    zip_file = zipfile.ZipFile(BytesIO(data))
+                    opener.close()
 
                 if control.setting('keep_zips') == 'true':
 
@@ -148,9 +161,11 @@ class Vipsubs:
                         control.makeFile(output_path)
                     # noinspection PyUnboundLocalVariable
                     output_filename = control.join(output_path, _filename)
-
-                    with open(output_filename, 'wb') as f:
-                        f.write(data)
+                    if is_py3:  # Kodi 19+
+                        control.copy(filename, output_filename)
+                    else:
+                        with open(output_filename, 'wb') as f:
+                            f.write(data)
 
                     control.infoDialog(control.lang(30007))
 
@@ -222,5 +237,6 @@ class Vipsubs:
             print(traceback.print_tb(tb))
 
             log_debug('Vipsubs.gr subtitle download failed for the following reason: ' + str(e))
+            log_debug('Vipsubs.gr failure occured on the following url: ' + url)
 
             return

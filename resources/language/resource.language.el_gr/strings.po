@@ -115,6 +115,6 @@ msgctxt "#30227"
 msgid "Page requires human verification[CR]subtitle cannot be downloaded at this moment"
 msgstr "Η σελίδα ζητάει επαλήθευση χρήστη[CR]]ο υπότιτλος δεν μπορεί να μεταφορτωθεί αυτήν την στιγμή"
 
-msgctxt ""30228"
+msgctxt "#30228"
 msgid "Increase search queries for episode titles"
 msgstr "Αύξηση όρων αναζήτησης για τους τίτλους επεισοδίων"

@@ -12,11 +12,12 @@ from __future__ import print_function
 
 from contextlib import closing
 from os.path import basename, split as os_split
-from resources.lib.tools import multichoice
+from resources.lib.tools import multichoice, cache_method, cache_duration
 import zipfile, re, sys, traceback
 from tulip import control, client
 from tulip.log import log_debug
-from tulip.compat import unquote_plus, quote_plus, StringIO, urlopen, quote
+from tulip.user_agents import randomagent
+from tulip.compat import unquote_plus, quote_plus, urlopen, quote, BytesIO, py3_dec, Request
 
 
 class Subtitlesgr:
@@ -27,7 +28,10 @@ class Subtitlesgr:
         self.base_link = 'http://gr.greek-subtitles.com'
         self.download_link = 'http://www.greeksubtitles.info'
 
+    @cache_method(cache_duration(440))
     def get(self, query):
+
+        query = py3_dec(query)
 
         try:
 
@@ -149,8 +153,12 @@ class Subtitlesgr:
             url = ''.join([self.download_link, '/getp.php?id={0}'.format(url)])
             url = client.request(url, output='geturl', timeout=control.setting('timeout'))
 
-            data = urlopen(url, timeout=int(control.setting('timeout'))).read()
-            zip_file = zipfile.ZipFile(StringIO(data))
+            req = Request(url)
+            req.add_header('User-Agent', randomagent())
+            opener = urlopen(req)
+            data = opener.read()
+            zip_file = zipfile.ZipFile(BytesIO(data))
+            opener.close()
             files = zip_file.namelist()
             files = [i for i in files if i.startswith('subs/')]
 

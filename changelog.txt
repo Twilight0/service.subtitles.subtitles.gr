@@ -1,3 +1,10 @@
+[B]3.5.0[/B]
+- Change caching method
+- Kodi 19+ related fixes
+- Remove prompt for libarchive installation
+- Increased cache durations for the given functions
+- Improve performance with futures instead of arbitrary ranges on workers
+
 [B]3.4.0 - 3.4.1[/B]
 - Code related tweaks, particularly how routing is handled
 - Added ability to save subtitles and/or zips from sources

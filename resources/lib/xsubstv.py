@@ -13,9 +13,10 @@ from __future__ import print_function
 import re, traceback, sys
 from os.path import split as os_split
 from os import rename
-from tulip.compat import urlencode, zip
-from tulip import cache, cleantitle, client, control
+from tulip.compat import urlencode, zip, py3_dec
+from tulip import cleantitle, client, control
 from tulip.log import log_debug
+from resources.lib.tools import cache_method, cache_duration
 
 
 class Xsubstv:
@@ -27,7 +28,10 @@ class Xsubstv:
         self.user = control.setting('xsubstv.user')
         self.password = control.setting('xsubstv.pass')
 
+    @cache_method(cache_duration(440))
     def get(self, query):
+
+        query = py3_dec(query)
 
         try:
 
@@ -45,7 +49,7 @@ class Xsubstv:
 
             url = ''.join([self.base_link, '/series/all.xml'])
 
-            srsid = cache.get(self.cache, 48, url)
+            srsid = self.cache(url)
             srsid = [i[0] for i in srsid if title == i[1]][0]
 
             url = ''.join([self.base_link, '/series/{0}/main.xml'.format(srsid)])
@@ -116,6 +120,7 @@ class Xsubstv:
 
         return self.list
 
+    @cache_method(cache_duration(2880))
     def cache(self, url):
 
         try:
@@ -138,6 +143,7 @@ class Xsubstv:
 
             return
 
+    @cache_method(cache_duration(720))
     def cookie(self):
 
         try:
@@ -184,7 +190,7 @@ class Xsubstv:
 
             elif anonymous is False:
 
-                cookie = cache.get(self.cookie, 12)
+                cookie = self.cookie()
 
             result, headers, content, cookie = client.request(url, cookie=cookie, output='extended')
 

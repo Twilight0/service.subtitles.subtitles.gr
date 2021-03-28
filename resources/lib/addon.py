@@ -10,11 +10,12 @@
 
 import re, unicodedata
 from shutil import copy
+import concurrent.futures
 from os.path import split as os_split
 from resources.lib import subtitlesgr, xsubstv, podnapisi, vipsubs
 
-from tulip import workers, cache, control
-from tulip.compat import urlencode, range
+from tulip import control
+from tulip.compat import urlencode, py3_dec
 from tulip.log import log_debug
 
 
@@ -38,109 +39,129 @@ class Search:
 
             return
 
-        if control.kodi_version() >= 18.0 and not control.conditional_visibility('System.HasAddon(vfs.libarchive)') and not (
-            control.condVisibility('System.Platform.Linux')
-        ):
-            control.execute('InstallAddon(vfs.libarchive)')
-
-        threads = [
-            workers.Thread(self.xsubstv), workers.Thread(self.subtitlesgr), workers.Thread(self.podnapisi),
-            workers.Thread(self.vipsubs)
-        ]
-
         dup_removal = False
 
         if not query:
 
-            if control.condVisibility('Player.HasVideo'):
-                infolabel_prefix = 'VideoPlayer'
-            else:
-                infolabel_prefix = 'ListItem'
+            with concurrent.futures.ThreadPoolExecutor(10) as executor:
 
-            title = control.infoLabel('{0}.Title'.format(infolabel_prefix))
+                if control.condVisibility('Player.HasVideo'):
+                    infolabel_prefix = 'VideoPlayer'
+                else:
+                    infolabel_prefix = 'ListItem'
 
-            if re.search(r'[^\x00-\x7F]+', title) is not None:
+                title = control.infoLabel('{0}.Title'.format(infolabel_prefix))
 
-                title = control.infoLabel('{0}.OriginalTitle'.format(infolabel_prefix))
+                if re.search(r'[^\x00-\x7F]+', title) is not None:
 
-            title = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore')
+                    title = control.infoLabel('{0}.OriginalTitle'.format(infolabel_prefix))
 
-            year = control.infoLabel('{0}.Year'.format(infolabel_prefix))
+                title = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore')
 
-            tvshowtitle = control.infoLabel('{0}.TVshowtitle'.format(infolabel_prefix))
+                year = control.infoLabel('{0}.Year'.format(infolabel_prefix))
 
-            season = control.infoLabel('{0}.Season'.format(infolabel_prefix))
+                tvshowtitle = control.infoLabel('{0}.TVshowtitle'.format(infolabel_prefix))
 
-            if len(season) == 1:
+                season = control.infoLabel('{0}.Season'.format(infolabel_prefix))
 
-                season = '0' + season
+                if len(season) == 1:
 
-            episode = control.infoLabel('{0}.Episode'.format(infolabel_prefix))
+                    season = '0' + season
 
-            if len(episode) == 1:
-                episode = '0' + episode
+                episode = control.infoLabel('{0}.Episode'.format(infolabel_prefix))
 
-            if 's' in episode.lower():
-                season, episode = '0', episode[-1:]
+                if len(episode) == 1:
+                    episode = '0' + episode
 
-            if tvshowtitle != '':  # episode
+                if 's' in episode.lower():
+                    season, episode = '0', episode[-1:]
 
-                title_query = '{0} {1}'.format(tvshowtitle, title)
-                season_episode_query = '{0} S{1} E{2}'.format(tvshowtitle, season, episode)
-                season_episode_query_nospace = '{0} S{1}E{2}'.format(tvshowtitle, season, episode)
+                if tvshowtitle != '':  # episode
 
-                threads = [
-                    workers.Thread(self.subtitlesgr, season_episode_query_nospace),
-                    workers.Thread(self.xsubstv, season_episode_query),
-                    workers.Thread(self.podnapisi, season_episode_query),
-                    workers.Thread(self.vipsubs, season_episode_query)
-                ]
+                    title_query = '{0} {1}'.format(tvshowtitle, title)
+                    season_episode_query = '{0} S{1} E{2}'.format(tvshowtitle, season, episode)
+                    season_episode_query_nospace = '{0} S{1}E{2}'.format(tvshowtitle, season, episode)
 
-                if control.setting('queries') == 'true':
-
-                    threads.extend(
-                        [
-                            workers.Thread(self.subtitlesgr, title_query),workers.Thread(self.vipsubs, title_query),
-                            workers.Thread(self.podnapisi, title_query), workers.Thread(self.subtitlesgr, season_episode_query)
-                        ]
-                    )
+                    threads = [
+                        executor.submit(self.subtitlesgr, season_episode_query_nospace),
+                        executor.submit(self.xsubstv, season_episode_query),
+                        executor.submit(self.podnapisi, season_episode_query),
+                        executor.submit(self.vipsubs, season_episode_query)
+                    ]
 
                     dup_removal = True
 
                     log_debug('Dual query used for subtitles search: ' + title_query + ' / ' + season_episode_query)
 
-            elif year != '':  # movie
+                    if control.setting('queries') == 'true':
 
-                query = '{0} ({1})'.format(title, year)
+                        threads.extend(
+                            [
+                                executor.submit(self.subtitlesgr, title_query),
+                                executor.submit(self.vipsubs, title_query),
+                                executor.submit(self.podnapisi, title_query),
+                                executor.submit(self.subtitlesgr, season_episode_query)
+                            ]
+                        )
 
-            else:  # file
+                elif year != '':  # movie
 
-                query, year = control.cleanmovietitle(title)
+                    query = '{0} ({1})'.format(title, year)
 
-                if year != '':
+                    threads = [
+                        executor.submit(self.subtitlesgr, query), executor.submit(self.xsubstv, query),
+                        executor.submit(self.vipsubs, query), executor.submit(self.podnapisi, query)
+                    ]
 
-                    query = '{0} ({1})'.format(query, year)
+                else:  # file
 
-        if not dup_removal:
+                    query, year = control.cleanmovietitle(title)
 
-            log_debug('Query used for subtitles search: ' + query)
+                    if year != '':
 
-        self.query = query
+                        query = '{0} ({1})'.format(query, year)
 
-        [i.start() for i in threads]
+                    threads = [
+                        executor.submit(self.subtitlesgr, query), executor.submit(self.xsubstv, query),
+                        executor.submit(self.vipsubs, query), executor.submit(self.podnapisi, query)
+                    ]
 
-        for i in range(0, 40):
+                for future in concurrent.futures.as_completed(threads):
 
-            is_alive = [x.is_alive() for x in threads]
+                    item = future.result()
 
-            if all(not x for x in is_alive):
-                log_debug('Counted results: ' + str(i))
-                break
-            if control.aborted is True:
-                log_debug('Aborted, reached count : ' + str(i))
-                break
+                    if not item:
+                        continue
 
-            control.sleep(400)
+                    self.list.extend(item)
+
+                if not dup_removal:
+
+                    log_debug('Query used for subtitles search: ' + query)
+
+                self.query = query
+
+                self.query = py3_dec(self.query)
+
+        else:
+
+            with concurrent.futures.ThreadPoolExecutor(10) as executor:
+
+                query = py3_dec(query)
+
+                threads = [
+                    executor.submit(self.subtitlesgr, query), executor.submit(self.xsubstv, query),
+                    executor.submit(self.vipsubs, query), executor.submit(self.podnapisi, query)
+                ]
+
+                for future in concurrent.futures.as_completed(threads):
+
+                    item = future.result()
+
+                    if not item:
+                        continue
+
+                    self.list.extend(item)
 
         if len(self.list) == 0:
 
@@ -193,7 +214,8 @@ class Search:
             u = {'action': 'download', 'url': i['url'], 'source': i['source']}
             u = '{0}?{1}'.format(self.sysaddon, urlencode(u))
 
-            item = control.item(label='Greek', label2=i['name'], iconImage=str(i['rating'])[:1], thumbnailImage='el')
+            item = control.item(label='Greek', label2=i['name'])
+            item.setArt({'icon': str(i['rating'])[:1], 'thumb': 'el'})
             item.setProperty('sync', 'false')
             item.setProperty('hearing_imp', 'false')
 
@@ -212,12 +234,9 @@ class Search:
             if control.setting('subtitles') == 'false':
                 raise TypeError
 
-            if control.setting('cache') == 'true':
-                result = cache.get(subtitlesgr.Subtitlesgr().get, 2, query)
-            else:
-                result = subtitlesgr.Subtitlesgr().get(query)
+            result = subtitlesgr.Subtitlesgr().get(query)
 
-            self.list.extend(result)
+            return result
 
         except TypeError:
 
@@ -234,12 +253,9 @@ class Search:
             if control.setting('podnapisi') == 'false':
                 raise TypeError
 
-            if control.setting('cache') == 'true':
-                result = cache.get(podnapisi.Podnapisi().get, 2, query)
-            else:
-                result = podnapisi.Podnapisi().get(query)
+            result = podnapisi.Podnapisi().get(query)
 
-            self.list.extend(result)
+            return result
 
         except TypeError:
 
@@ -256,12 +272,9 @@ class Search:
             if control.setting('vipsubs') == 'false':
                 raise TypeError
 
-            if control.setting('cache') == 'true':
-                result = cache.get(vipsubs.Vipsubs().get, 2, query)
-            else:
-                result = vipsubs.Vipsubs().get(query)
+            result = vipsubs.Vipsubs().get(query)
 
-            self.list.extend(result)
+            return result
 
         except TypeError:
 
@@ -278,10 +291,7 @@ class Search:
             if control.setting('xsubs') == 'false':
                 raise TypeError
 
-            if control.setting('cache') == 'true':
-                result = cache.get(xsubstv.Xsubstv().get, 2, query)
-            else:
-                result = xsubstv.Xsubstv().get(query)
+            result = xsubstv.Xsubstv().get(query)
 
             self.list.extend(result)
 

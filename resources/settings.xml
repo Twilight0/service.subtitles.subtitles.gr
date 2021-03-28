@@ -8,7 +8,7 @@
 		<setting id="vipsubs" label="Vipsubs.gr" type="bool" default="true"/>
 	</category>
 	<category label="30219">
-        <setting id="sorting" type="select" label="30220" lvalues="30221|32222|32223|32224" default="1"/>
+        <setting id="sorting" type="select" label="30220" lvalues="30221|30222|30223|30224" default="1"/>
 		<setting id="cache" label="30003" type="bool" default="true"/>
 		<setting id="queries" label="30228" type="bool" default="true"/>
 		<setting id="timeout" type="slider" label="30226" default="30" range="10,10,120" option="int"/>
