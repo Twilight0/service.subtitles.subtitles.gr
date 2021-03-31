@@ -10,12 +10,15 @@
 
 import re, unicodedata
 from shutil import copy
-import concurrent.futures
+try:
+    import concurrent.futures
+except Exception:
+    futures = None
 from os.path import split as os_split
 from resources.lib import subtitlesgr, xsubstv, podnapisi, vipsubs
 
 from tulip import control
-from tulip.compat import urlencode, py3_dec
+from tulip.compat import urlencode, py3_dec, is_py2
 from tulip.log import log_debug
 
 
@@ -39,11 +42,21 @@ class Search:
 
             return
 
+        if not control.conditional_visibility('System.HasAddon(script.module.futures)') and is_py2:
+
+            if 17.0 <= control.kodi_version() <= 18.9:
+                control.execute('InstallAddon(script.module.futures)')
+                control.sleep(1500)
+
+            elif 16.0 <= control.kodi_version() <= 16.2:
+                control.okDialog('Subtitles.gr', control.lang(30229))
+                return
+
         dup_removal = False
 
         if not query:
 
-            with concurrent.futures.ThreadPoolExecutor(10) as executor:
+            with concurrent.futures.ThreadPoolExecutor(5) as executor:
 
                 if control.condVisibility('Player.HasVideo'):
                     infolabel_prefix = 'VideoPlayer'
@@ -57,11 +70,9 @@ class Search:
                     title = control.infoLabel('{0}.OriginalTitle'.format(infolabel_prefix))
 
                 title = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore')
-
+                title = py3_dec(title)
                 year = control.infoLabel('{0}.Year'.format(infolabel_prefix))
-
                 tvshowtitle = control.infoLabel('{0}.TVshowtitle'.format(infolabel_prefix))
-
                 season = control.infoLabel('{0}.Season'.format(infolabel_prefix))
 
                 if len(season) == 1:
@@ -145,7 +156,7 @@ class Search:
 
         else:
 
-            with concurrent.futures.ThreadPoolExecutor(10) as executor:
+            with concurrent.futures.ThreadPoolExecutor(5) as executor:
 
                 query = py3_dec(query)
 

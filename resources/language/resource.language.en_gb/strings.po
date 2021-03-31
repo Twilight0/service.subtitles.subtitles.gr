@@ -119,3 +119,7 @@ msgstr ""
 msgctxt "#30228"
 msgid "Increase search queries for episode titles"
 msgstr ""
+
+msgctxt "#30229"
+msgid "Please install the futures dependency manually from zip"
+msgstr ""

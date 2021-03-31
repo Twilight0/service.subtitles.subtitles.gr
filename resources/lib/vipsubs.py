@@ -127,6 +127,8 @@ class Vipsubs:
 
         if url.startswith('http'):
 
+            log_debug('Vipsubs.gr: Attempting downloading from this url ~ {0}'.format(url))
+
             _filename = '.'.join(urlparse(url).path.split('/')[3:5])
             filename = control.join(path, _filename)
 
@@ -138,13 +140,14 @@ class Vipsubs:
 
             if url.startswith('http'):
 
-                sub = client.request(url, output='geturl', timeout=control.setting('timeout'))
+                if 'dropbox' in url:
+                    url = client.request(url, output='geturl', timeout=control.setting('timeout'))
                 if is_py3:  # Kodi 19+
-                    client.retriever(sub, filename)
+                    client.retriever(url, filename)
                     zip_file = zipfile.ZipFile(filename)
                     data = None
                 else:
-                    req = Request(sub)
+                    req = Request(url)
                     req.add_header('User-Agent', randomagent())
                     opener = urlopen(req)
                     data = opener.read()
@@ -237,6 +240,5 @@ class Vipsubs:
             print(traceback.print_tb(tb))
 
             log_debug('Vipsubs.gr subtitle download failed for the following reason: ' + str(e))
-            log_debug('Vipsubs.gr failure occured on the following url: ' + url)
 
             return

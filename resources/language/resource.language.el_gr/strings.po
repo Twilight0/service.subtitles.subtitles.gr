@@ -118,3 +118,7 @@ msgstr "Η σελίδα ζητάει επαλήθευση χρήστη[CR]]ο υ
 msgctxt "#30228"
 msgid "Increase search queries for episode titles"
 msgstr "Αύξηση όρων αναζήτησης για τους τίτλους επεισοδίων"
+
+msgctxt "#30229"
+msgid "Please install the futures dependency manually from zip"
+msgstr "Παρακαλώ εγκαταστήστε την εξάρτηση futures χειροκίνητα από αρχείο zip"

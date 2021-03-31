@@ -1,3 +1,9 @@
+[B]3.5.1[/B]
+- Logging tweaks on vipsubs
+- Force unicode search strings
+- Make futures optional to help installation for certain cases (Kodi 19)
+- Reduce number of concurrent threads (max 5)
+
 [B]3.5.0[/B]
 - Change caching method
 - Kodi 19+ related fixes
