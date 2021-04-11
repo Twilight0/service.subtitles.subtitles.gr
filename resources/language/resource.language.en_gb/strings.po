@@ -46,7 +46,31 @@ msgstr ""
 
 msgctxt "#30008"
 msgid "Subtitle has been saved"
-msgstr "Ο υπότιτλος αποθηκεύτηκε"
+msgstr ""
+
+msgctxt "#30009"
+msgid "Destination"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Locally in a movie subfolder (in case of failure will save to the folder below)"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Manual choice"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Auto extract zips"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Could not save the subtitles"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Delete saved subtitles folder and all of its contents"
+msgstr ""
 
 msgctxt "#30211"
 msgid "Accounts"

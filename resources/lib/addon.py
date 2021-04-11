@@ -14,7 +14,7 @@ try:
     import concurrent.futures
 except Exception:
     futures = None
-from os.path import split as os_split
+from os.path import splitext, exists, split as os_split
 from resources.lib import subtitlesgr, xsubstv, podnapisi, vipsubs
 
 from tulip import control
@@ -125,6 +125,8 @@ class Search:
                     ]
 
                 else:  # file
+
+                    title = control.get_info_label('ListItem.FileName')
 
                     query, year = control.cleanmovietitle(title)
 
@@ -318,6 +320,7 @@ class Download:
         self.syshandle = syshandle
         self.sysaddon = sysaddon
 
+    # noinspection PyUnboundLocalVariable
     def run(self, url, source):
 
         log_debug('Source selected: {0}'.format(source))
@@ -340,12 +343,15 @@ class Download:
 
         if control.setting('keep_subs') == 'true' or control.setting('keep_zips') == 'true':
 
-            if control.setting('output_folder').startswith('special://'):
+            if not control.get_info_label('ListItem.Path').startswith('plugin://') and control.setting('destination') == '0':
+                output_path = control.get_info_label('Container.FolderPath')
+            elif control.setting('output_folder').startswith('special://'):
                 output_path = control.transPath(control.setting('output_folder'))
             else:
                 output_path = control.setting('output_folder')
 
-            control.makeFile(output_path)
+            if not exists(output_path):
+                control.makeFile(output_path)
 
         if source == 'subtitlesgr':
 
@@ -372,8 +378,26 @@ class Download:
             if control.setting('keep_subs') == 'true':
 
                 # noinspection PyUnboundLocalVariable
-                copy(subtitle, control.join(output_path, os_split(subtitle)[1]))
-                control.infoDialog(control.lang(30008))
+                try:
+                    if control.setting('destination') == '0':
+                        if control.get_info_label('ListItem.Path').startswith('plugin://'):
+                            copy(subtitle, control.join(output_path, os_split(subtitle)[1]))
+                        else:
+                            copy(
+                                subtitle, control.join(
+                                    output_path, ''.join(
+                                        [
+                                            control.get_info_label('ListItem.FileName').rpartition('.')[0],
+                                            splitext(os_split(subtitle)[1])[1]
+                                        ]
+                                    )
+                                )
+                            )
+                    else:
+                        copy(subtitle, control.join(output_path, os_split(subtitle)[1]))
+                    control.infoDialog(control.lang(30008))
+                except Exception:
+                    control.infoDialog(control.lang(30013))
 
             item = control.item(label=subtitle)
             control.addItem(handle=self.syshandle, url=subtitle, listitem=item, isFolder=False)

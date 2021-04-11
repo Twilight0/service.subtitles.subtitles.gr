@@ -47,6 +47,30 @@ msgctxt "#30008"
 msgid "Subtitle has been saved"
 msgstr "Ο υπότιτλος αποθηκεύτηκε"
 
+msgctxt "#30009"
+msgid "Destination"
+msgstr "Προορισμός"
+
+msgctxt "#30010"
+msgid "Locally in a movie subfolder (in case of failure will save to the folder below)"
+msgstr "Τοπικά σε έναν υποφάκελο ταινίας (σε περίπτωση αποτυχίας θα αποθηκευσει στο παρακάτω φάκελο)"
+
+msgctxt "#30011"
+msgid "Manual choice"
+msgstr "Χειροκίνητη επιλογή"
+
+msgctxt "#30012"
+msgid "Auto extract zips"
+msgstr "Αυτόματη αποσυμπίεση των zip"
+
+msgctxt "#30013"
+msgid "Could not save the subtitles"
+msgstr "Αδυναμία αποθήκευσης των υποτίτλων"
+
+msgctxt "#30014"
+msgid "Delete saved subtitles folder and all of its contents"
+msgstr "Διαγραφή του φακέλου των αποθηκευμένων υποτίτλων και όλου του περιεχομένου"
+
 msgctxt "#30211"
 msgid "Accounts"
 msgstr "Λογαριασμοί"

@@ -79,6 +79,7 @@ class Vipsubs:
 
             if not items:
                 log_debug('Vipsubs.gr did not provide any results')
+                return
 
         except Exception as e:
 
@@ -169,6 +170,11 @@ class Vipsubs:
                     else:
                         with open(output_filename, 'wb') as f:
                             f.write(data)
+
+                    if control.setting('extract') == 'true':
+                        control.makeFile(os.path.splitext(output_filename)[0])
+                        zip_file = zipfile.ZipFile(output_filename)
+                        zip_file.extractall(os.path.splitext(output_filename)[0])
 
                     control.infoDialog(control.lang(30007))
 

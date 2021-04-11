@@ -1,3 +1,10 @@
+[B]3.6.0[/B]
+- Allow download of the subtitle next to the playing item (for locally saved videos)
+- Extract zips upon save
+- Fix for saved files
+- Improve results for locally saved files
+- Some bug fixes (xsubs.tv)
+
 [B]3.5.1[/B]
 - Logging tweaks on vipsubs
 - Force unicode search strings

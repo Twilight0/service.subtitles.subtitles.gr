@@ -37,7 +37,7 @@ class Xsubstv:
 
             try:
                 title, season, episode = re.findall(r'(.+?)[ .]s?(\d{1,2})(?: |.)?(?:ep?|x|\.)?(\d{1,2})?', query, flags=re.I)[0]
-            except IndexError:
+            except (IndexError, TypeError):
                 log_debug("Search query is not a tv show related, xsubs.tv does not offer subs for movies")
                 return
 
@@ -192,7 +192,7 @@ class Xsubstv:
 
                 cookie = self.cookie()
 
-            result, headers, content, cookie = client.request(url, cookie=cookie, output='extended')
+            result, headers, content, cookie = client.request(url, cookie=cookie, output='extended', as_bytes=True)
 
             subtitle = content['Content-Disposition']
             subtitle = re.findall('"(.+?)"', subtitle)[0]
