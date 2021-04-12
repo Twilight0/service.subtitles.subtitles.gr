@@ -71,6 +71,14 @@ msgctxt "#30014"
 msgid "Delete saved subtitles folder and all of its contents"
 msgstr "Διαγραφή του φακέλου των αποθηκευμένων υποτίτλων και όλου του περιεχομένου"
 
+msgctxt "#30015"
+msgid "Overwrite existing subs?"
+msgstr "Εγγραφή από πάνω στους υπάρχοντες υποτίτλους;"
+
+msgctxt "#30016"
+msgid "Both manual and local"
+msgstr "Και τοπικά και στον χειροκίνητο προορισμό"
+
 msgctxt "#30211"
 msgid "Accounts"
 msgstr "Λογαριασμοί"

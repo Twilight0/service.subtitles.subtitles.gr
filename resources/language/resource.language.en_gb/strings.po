@@ -72,6 +72,14 @@ msgctxt "#30014"
 msgid "Delete saved subtitles folder and all of its contents"
 msgstr ""
 
+msgctxt "#30015"
+msgid "Overwrite existing subs?"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Both manual and local"
+msgstr ""
+
 msgctxt "#30211"
 msgid "Accounts"
 msgstr ""

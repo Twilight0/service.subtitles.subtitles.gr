@@ -93,9 +93,6 @@ class Vipsubs:
 
         for item in items:
 
-            if 'dropbox' not in item:
-                continue
-
             try:
 
                 label = itertags_wrapper(item, 'a', attrs={'rel': "bookmark"})[0].text
@@ -103,6 +100,8 @@ class Vipsubs:
                 label = client.replaceHTMLCodes(label)
 
                 url = itertags_wrapper(item, 'a', ret='href')[-1]
+                if 'vipsubs.gr' in url:
+                    continue
                 rating = 10.0
 
                 self.list.append(

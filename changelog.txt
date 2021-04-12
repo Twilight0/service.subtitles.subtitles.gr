@@ -1,3 +1,8 @@
+[B]3.6.1[/B]
+- Broaden search results for vipsubs.gr
+- Allow subtitle to be saved both locally and within the manual choice
+- Ask before overwriting existing subs
+
 [B]3.6.0[/B]
 - Allow download of the subtitle next to the playing item (for locally saved videos)
 - Extract zips upon save

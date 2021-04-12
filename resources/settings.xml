@@ -15,7 +15,7 @@
 		<setting id="keep_subs" label="30004" type="bool" default="false"/>
 		<setting id="keep_zips" label="30006" type="bool" default="false"/>
 		<setting id="extract" label="30012" type="bool" default="true" visible="eq(-1,true) + eq(-2,true)"/>
-		<setting id="destination" type="select" label="30009" lvalues="30010|30011" default="1" visible="eq(-3,true)"/>
+		<setting id="destination" type="select" label="30009" lvalues="30010|30011|30016" default="1" visible="eq(-3,true)"/>
 		<setting id="output_folder" label="30005" type="folder" default="special://profile/addon_data/service.subtitles.subtitles.gr/saved/" visible="eq(-4,true) | eq(-3,true)" option="writeable" source="auto" />
 	</category>
 	<category label="30211">

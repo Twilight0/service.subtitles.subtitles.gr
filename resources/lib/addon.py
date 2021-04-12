@@ -379,12 +379,12 @@ class Download:
 
                 # noinspection PyUnboundLocalVariable
                 try:
-                    if control.setting('destination') == '0':
+                    if control.setting('destination') in ['0', '2']:
                         if control.get_info_label('ListItem.Path').startswith('plugin://'):
                             copy(subtitle, control.join(output_path, os_split(subtitle)[1]))
+                            log_debug('Item currently selected is not a local file, cannot save subtitle next to it')
                         else:
-                            copy(
-                                subtitle, control.join(
+                            output_filename = control.join(
                                     output_path, ''.join(
                                         [
                                             control.get_info_label('ListItem.FileName').rpartition('.')[0],
@@ -392,7 +392,18 @@ class Download:
                                         ]
                                     )
                                 )
-                            )
+                            if exists(output_filename):
+                                yesno = control.yesnoDialog(control.lang(30015))
+                                if yesno:
+                                    copy(subtitle, output_filename)
+                            else:
+                                copy(subtitle, output_filename)
+                            if control.setting('destination') == '2':
+                                if control.setting('output_folder').startswith('special://'):
+                                    output_path = control.transPath(control.setting('output_folder'))
+                                else:
+                                    output_path = control.setting('output_folder')
+                                copy(subtitle, control.join(output_path, os_split(subtitle)[1]))
                     else:
                         copy(subtitle, control.join(output_path, os_split(subtitle)[1]))
                     control.infoDialog(control.lang(30008))
