@@ -1,3 +1,6 @@
+[B]3.6.2[/B]
+- Bug fixes for subtitles save function on vipsubs
+
 [B]3.6.1[/B]
 - Broaden search results for vipsubs.gr
 - Allow subtitle to be saved both locally and within the manual choice

@@ -15,7 +15,7 @@ from contextlib import closing
 import zipfile, re, sys, traceback, os
 from tulip import control, client
 from tulip.log import log_debug
-from tulip.compat import unquote_plus, quote_plus, urlparse, urlopen, Request, BytesIO, py3_dec, is_py3
+from tulip.compat import unquote_plus, quote_plus, urlparse, urlopen, Request, BytesIO, py3_dec, is_py3, unquote
 from tulip.parsers import itertags_wrapper
 from tulip.user_agents import randomagent
 
@@ -129,7 +129,7 @@ class Vipsubs:
 
             log_debug('Vipsubs.gr: Attempting downloading from this url ~ {0}'.format(url))
 
-            _filename = '.'.join(urlparse(url).path.split('/')[3:5])
+            _filename = unquote('.'.join(urlparse(url).path.split('/')[3:5]))
             filename = control.join(path, _filename)
 
         else:
@@ -142,17 +142,13 @@ class Vipsubs:
 
                 if 'dropbox' in url:
                     url = client.request(url, output='geturl', timeout=control.setting('timeout'))
-                if is_py3:  # Kodi 19+
-                    client.retriever(url, filename)
-                    zip_file = zipfile.ZipFile(filename)
-                    data = None
-                else:
-                    req = Request(url)
-                    req.add_header('User-Agent', randomagent())
-                    opener = urlopen(req)
-                    data = opener.read()
-                    zip_file = zipfile.ZipFile(BytesIO(data))
-                    opener.close()
+
+                req = Request(url)
+                req.add_header('User-Agent', randomagent())
+                opener = urlopen(req)
+                data = opener.read()
+                zip_file = zipfile.ZipFile(BytesIO(data))
+                opener.close()
 
                 if control.setting('keep_zips') == 'true':
 
@@ -164,16 +160,15 @@ class Vipsubs:
                         control.makeFile(output_path)
                     # noinspection PyUnboundLocalVariable
                     output_filename = control.join(output_path, _filename)
-                    if is_py3:  # Kodi 19+
-                        control.copy(filename, output_filename)
-                    else:
-                        with open(output_filename, 'wb') as f:
-                            f.write(data)
+                    with open(output_filename, 'wb') as f:
+                        f.write(data)
 
                     if control.setting('extract') == 'true':
-                        control.makeFile(os.path.splitext(output_filename)[0])
                         zip_file = zipfile.ZipFile(output_filename)
-                        zip_file.extractall(os.path.splitext(output_filename)[0])
+                        output_path = control.join(output_path, os.path.splitext(_filename)[0])
+                        if not os.path.exists(output_path):
+                            control.makeFile(output_path)
+                        zip_file.extractall(output_path)
 
                     control.infoDialog(control.lang(30007))
 
