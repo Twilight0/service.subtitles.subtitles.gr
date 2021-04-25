@@ -1,3 +1,10 @@
+[B]3.7.0[/B]
+- Increase maximum possible timeout for search requests
+- Add separate setting for subtitles.gr sub download timeout
+- Utilize fuzzywuzzy to find synced subtitles (minimum match ratio 50, default 75, max 100)
+- Replace futures module with tulip solution
+- Various other tweaks
+
 [B]3.6.2[/B]
 - Bug fixes for subtitles save function on vipsubs
 

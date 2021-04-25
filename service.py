@@ -14,7 +14,7 @@ from tulip.compat import parse_qsl
 
 syshandle = int(sys.argv[1])
 sysaddon = sys.argv[0]
-params = dict(parse_qsl(sys.argv[2].replace('?', '')))
+params = dict(parse_qsl(sys.argv[2][1:]))
 
 action = params.get('action')
 source = params.get('source')

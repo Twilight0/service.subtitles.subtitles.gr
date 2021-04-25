@@ -176,6 +176,8 @@ class Xsubstv:
 
         try:
 
+            log_debug('Xsubs.tv: Attempting downloading from this url: {0}'.format(url))
+
             cookie = None
 
             anonymous = (self.user == '' or self.password == '')

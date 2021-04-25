@@ -10,6 +10,7 @@ Search and download subtitles from the following domains:
 - Subtitles.gr
 - Xsubs.tv
 - Podnapisi.net
+- Vipsubs.gr
 
 This service is not published nor endorsed by the above mentioned domains
 

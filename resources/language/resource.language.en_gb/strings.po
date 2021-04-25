@@ -155,3 +155,11 @@ msgstr ""
 msgctxt "#30229"
 msgid "Please install the futures dependency manually from zip"
 msgstr ""
+
+msgctxt "#30230"
+msgid "Timeout in seconds (subtitles.gr download function)"
+msgstr ""
+
+msgctxt "#30231"
+msgid "Sync probability level"
+msgstr ""

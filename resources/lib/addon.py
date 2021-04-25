@@ -10,16 +10,18 @@
 
 import re, unicodedata
 from shutil import copy
-try:
-    import concurrent.futures
-except Exception:
-    futures = None
 from os.path import splitext, exists, split as os_split
 from resources.lib import subtitlesgr, xsubstv, podnapisi, vipsubs
-
+from tulip.fuzzywuzzy.fuzz import ratio
 from tulip import control
-from tulip.compat import urlencode, py3_dec, is_py2
+from tulip.compat import urlencode, py3_dec, concurrent_futures
 from tulip.log import log_debug
+
+
+if control.condVisibility('Player.HasVideo'):
+    infolabel_prefix = 'VideoPlayer'
+else:
+    infolabel_prefix = 'ListItem'
 
 
 class Search:
@@ -42,28 +44,13 @@ class Search:
 
             return
 
-        if not control.conditional_visibility('System.HasAddon(script.module.futures)') and is_py2:
-
-            if 17.0 <= control.kodi_version() <= 18.9:
-                control.execute('InstallAddon(script.module.futures)')
-                control.sleep(1500)
-
-            elif 16.0 <= control.kodi_version() <= 16.2:
-                control.okDialog('Subtitles.gr', control.lang(30229))
-                return
-
         dup_removal = False
 
         if not query:
 
-            with concurrent.futures.ThreadPoolExecutor(5) as executor:
+            title = match_title = control.infoLabel('{0}.Title'.format(infolabel_prefix))
 
-                if control.condVisibility('Player.HasVideo'):
-                    infolabel_prefix = 'VideoPlayer'
-                else:
-                    infolabel_prefix = 'ListItem'
-
-                title = control.infoLabel('{0}.Title'.format(infolabel_prefix))
+            with concurrent_futures.ThreadPoolExecutor(5) as executor:
 
                 if re.search(r'[^\x00-\x7F]+', title) is not None:
 
@@ -126,8 +113,6 @@ class Search:
 
                 else:  # file
 
-                    title = control.get_info_label('ListItem.FileName')
-
                     query, year = control.cleanmovietitle(title)
 
                     if year != '':
@@ -139,7 +124,7 @@ class Search:
                         executor.submit(self.vipsubs, query), executor.submit(self.podnapisi, query)
                     ]
 
-                for future in concurrent.futures.as_completed(threads):
+                for future in concurrent_futures.as_completed(threads):
 
                     item = future.result()
 
@@ -156,18 +141,18 @@ class Search:
 
                 self.query = py3_dec(self.query)
 
-        else:
+        else:  # Manual query
 
-            with concurrent.futures.ThreadPoolExecutor(5) as executor:
+            with concurrent_futures.ThreadPoolExecutor(5) as executor:
 
-                query = py3_dec(query)
+                query = match_title = py3_dec(query)
 
                 threads = [
                     executor.submit(self.subtitlesgr, query), executor.submit(self.xsubstv, query),
                     executor.submit(self.vipsubs, query), executor.submit(self.podnapisi, query)
                 ]
 
-                for future in concurrent.futures.as_completed(threads):
+                for future in concurrent_futures.as_completed(threads):
 
                     item = future.result()
 
@@ -226,10 +211,12 @@ class Search:
 
             u = {'action': 'download', 'url': i['url'], 'source': i['source']}
             u = '{0}?{1}'.format(self.sysaddon, urlencode(u))
-
             item = control.item(label='Greek', label2=i['name'])
             item.setArt({'icon': str(i['rating'])[:1], 'thumb': 'el'})
-            item.setProperty('sync', 'false')
+            if ratio(splitext(i['title'].lower())[0], splitext(match_title)[0]) >= int(control.setting('sync_probability')):
+                item.setProperty('sync', 'true')
+            else:
+                item.setProperty('sync', 'false')
             item.setProperty('hearing_imp', 'false')
 
             control.addItem(handle=self.syshandle, url=u, listitem=item, isFolder=False)
@@ -336,9 +323,7 @@ class Download:
             pass
 
         control.deleteDir(control.join(path, ''), force=True)
-
         control.makeFile(control.dataPath)
-
         control.makeFile(path)
 
         if control.setting('keep_subs') == 'true' or control.setting('keep_zips') == 'true':
@@ -380,14 +365,14 @@ class Download:
                 # noinspection PyUnboundLocalVariable
                 try:
                     if control.setting('destination') in ['0', '2']:
-                        if control.get_info_label('ListItem.Path').startswith('plugin://'):
+                        if control.infoLabel('{0}.Title'.format(infolabel_prefix)).startswith('plugin://'):
                             copy(subtitle, control.join(output_path, os_split(subtitle)[1]))
                             log_debug('Item currently selected is not a local file, cannot save subtitle next to it')
                         else:
                             output_filename = control.join(
                                     output_path, ''.join(
                                         [
-                                            control.get_info_label('ListItem.FileName').rpartition('.')[0],
+                                            splitext(control.infoLabel('ListItem.FileName'))[0],
                                             splitext(os_split(subtitle)[1])[1]
                                         ]
                                     )

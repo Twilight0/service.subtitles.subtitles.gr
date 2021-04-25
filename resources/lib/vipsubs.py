@@ -15,7 +15,7 @@ from contextlib import closing
 import zipfile, re, sys, traceback, os
 from tulip import control, client
 from tulip.log import log_debug
-from tulip.compat import unquote_plus, quote_plus, urlparse, urlopen, Request, BytesIO, py3_dec, is_py3, unquote
+from tulip.compat import unquote_plus, quote_plus, urlparse, urlopen, Request, BytesIO, py3_dec, unquote
 from tulip.parsers import itertags_wrapper
 from tulip.user_agents import randomagent
 
@@ -127,7 +127,7 @@ class Vipsubs:
 
         if url.startswith('http'):
 
-            log_debug('Vipsubs.gr: Attempting downloading from this url ~ {0}'.format(url))
+            log_debug('Vipsubs.gr: Attempting downloading from this url: {0}'.format(url))
 
             _filename = unquote('.'.join(urlparse(url).path.split('/')[3:5]))
             filename = control.join(path, _filename)

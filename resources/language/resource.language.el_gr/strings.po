@@ -154,3 +154,11 @@ msgstr "Αύξηση όρων αναζήτησης για τους τίτλου�
 msgctxt "#30229"
 msgid "Please install the futures dependency manually from zip"
 msgstr "Παρακαλώ εγκαταστήστε την εξάρτηση futures χειροκίνητα από αρχείο zip"
+
+msgctxt "#30230"
+msgid "Timeout in seconds (subtitles.gr download function)"
+msgstr "Χρόνος λήξης σε δευτερόλεπτα (λειτουργία μεταφόρτωσης του subtitles.gr)"
+
+msgctxt "#30231"
+msgid "Sync probability level"
+msgstr "Επίπεδο πιθανότητας συγχρονισμού"
