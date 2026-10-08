@@ -3,4 +3,9 @@
 \.vscode/
 \.env
 
+# Local-only development notes
+NOTES.md
+# Byte-compiled python (Kodi regenerates these)
+__pycache__/
+
 .env

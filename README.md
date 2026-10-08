@@ -7,10 +7,13 @@
 
 Search and download subtitles from the following domains:
 
-- Subtitles.gr
-- Xsubs.tv
-- Podnapisi.net
-- Vipsubs.gr
+- Subtitles.gr (disabled by default, site unreachable)
+- Podnapisi.net (disabled by default, site down)
+- GreekSubs.net
+- Subs4Free (movies only; series search is bot-walled)
+- YIFI (movies only)
+- TVsubtitles.net (series only, Greek only)
+- Moviesubtitles.org (movies only, Greek only)
 
 This service is not published nor endorsed by the above mentioned domains
 
