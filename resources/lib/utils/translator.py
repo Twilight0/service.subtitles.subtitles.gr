@@ -93,6 +93,96 @@ def assemble_srt(cues):
     return ('\n\n'.join(out) + '\n').encode('utf-8')
 
 
+# MicroDVD (.sub) cues address frames, not time. Frames pass through the
+# pipeline untouched and only the text is translated, so no FPS assumption
+# is needed anywhere: a .sub in, translated .sub out.
+
+
+def parse_microdvd(text):
+
+    '''
+    Returns [(index, start_frame, end_frame, text)] cues from MicroDVD
+    `{start}{end}` lines. `|` separators become line breaks; `{y:i}`/`{c:...}` style
+    control tags are left in place for the tag shelter to handle.
+    '''
+
+    cues = []
+    index = 0
+
+    for line in text.replace('\r\n', '\n').replace('\r', '\n').split('\n'):
+
+        match = re.match(r'^\{(\d+)\}\{(\d+)\}(.*)$', line.strip())
+
+        if not match:
+            continue
+
+        index += 1
+
+        cues.append(
+            (
+                index,
+                int(match.group(1)),
+                int(match.group(2)),
+                match.group(3).replace('|', '\n'),
+            )
+        )
+
+    return cues
+
+
+def assemble_microdvd(cues):
+
+    '''Serialises cues back to MicroDVD bytes, frames verbatim.'''
+
+    out = []
+
+    for _index, start, end, text in cues:
+        out.append('{{{0}}}{{{1}}}{2}'.format(start, end, text.replace('\n', '|')))
+
+    return ('\n'.join(out) + '\n').encode('utf-8')
+
+
+def detect_format(text):
+
+    ''''srt' for --> cue blocks, 'microdvd' for {n}{m} lines, else None.'''
+
+    if '-->' in text:
+        return 'srt'
+
+    if re.search(r'^\{\d+\}\{\d+\}', text, flags=re.M):
+        return 'microdvd'
+
+    return None
+
+
+def _split_tags(text):
+
+    '''
+    Splits leading/trailing ASS override tags ({\\an8}, {\\pos...}) off cue
+    text. Google mangles these ({\\an8} came back as "{\\ an8}"), while
+    HTML tags (<i>, <b>, <font>) survive translation untouched, so only the
+    brace tags are sheltered. Mid-line tags stay in the core; positioning
+    tags live at the edges, which is the case that matters.
+    '''
+
+    prefix, core = '', text
+
+    match = re.match(r'(\s*\{[^}]*\})+', core)
+
+    if match:
+        prefix, core = match.group(0), core[match.end():]
+
+    suffix = ''
+
+    if core.strip():
+        match = re.search(r'(\s*\{[^}]*\})+\s*$', core)
+
+        if match and match.start() > 0:
+            suffix, core = core[match.start():], core[:match.start()]
+
+    return prefix, core, suffix
+
+
 def _translate_batch(session, texts, target):
 
     '''
@@ -173,20 +263,54 @@ def translate_texts(texts, target='el', on_progress=None, is_cancelled=None):
 
 def translate_srt(data, target='el', on_progress=None, is_cancelled=None):
 
-    '''End to end: SRT bytes in one language, UTF-8 SRT bytes out in Greek.'''
+    '''End to end: subtitle bytes in, translated bytes out, same format.'''
 
-    cues = parse_srt(decode_bytes(data))
+    text = decode_bytes(data)
+    kind = detect_format(text)
+
+    if kind == 'microdvd':
+        log_debug('Translator: MicroDVD input, frames pass through untouched')
+        cues = parse_microdvd(text)
+        microdvd = True
+    else:
+        microdvd = False
+        cues = parse_srt(text)
 
     if not cues:
         raise Exception('no cues found in subtitle file')
 
     log_debug('Translator: {0} cues to translate'.format(len(cues)))
 
-    translated = translate_texts(
-        [cue[3] for cue in cues], target=target,
-        on_progress=on_progress, is_cancelled=is_cancelled
-    )
+    # Shelter ASS override tags outside the translated core; cues holding
+    # only tags skip the request entirely and keep their original text.
+    jobs, passthrough = [], {}
 
-    return assemble_srt(
-        [(cue[0], cue[1], cue[2], text) for cue, text in zip(cues, translated)]
-    )
+    for number, cue in enumerate(cues):
+        prefix, core, suffix = _split_tags(cue[3])
+
+        if core.strip():
+            jobs.append((number, prefix, core, suffix))
+        else:
+            passthrough[number] = cue[3]
+
+    if jobs:
+        cores = translate_texts(
+            [core for _, _, core, _ in jobs], target=target,
+            on_progress=on_progress, is_cancelled=is_cancelled
+        )
+    else:
+        cores = []
+
+    rebuilt = dict(passthrough)
+
+    for (number, prefix, _, suffix), text in zip(jobs, cores):
+        rebuilt[number] = prefix + text + suffix
+
+    out = [
+        (cues[n][0], cues[n][1], cues[n][2], rebuilt[n]) for n in range(len(cues))
+    ]
+
+    if microdvd:
+        return assemble_microdvd(out)
+
+    return assemble_srt(out)

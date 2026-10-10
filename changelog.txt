@@ -1,3 +1,13 @@
+[B]4.1.1[/B]
+- English results now list alongside Greek whenever translate is on, with per-provider tags ([SUBDL-TR], [TVSUBS-TR], [MSUBS-TR], [YIFI-TR], [ADDIC-TR]) and real English flags
+- YIFI English listings for movies as additional translation source
+- Addic7ed gets its own toggle (default on, curlcffi-gated); translate stays the master switch
+- Greek results rank ahead of English in every sort mode (saved stays first); fixes reverse-alphabetical order putting translations on top
+- Translated files keep the listing name they were chosen under instead of a generic filename
+- Translator shelters ASS override tags outside the translated core (Google mangles them) and skips tag-only cues
+- MicroDVD `.sub` files translate in place: frames pass through untouched, same-format round-trip, no FPS assumption
+- Requires tulip 4.1.5
+
 [B]4.1.0[/B]
 - Machine-translation fallback (opt-in, off by default): when no Greek subtitles are found, English listings are fetched and translated to Greek at download time via Google translate, marked [TR]
 - Translation runs in ~20-cue batches with cancellable progress, keeps original timing, asserts cue alignment, always saves the result as UTF-8; needs curl_cffi like the other bot-walled sources

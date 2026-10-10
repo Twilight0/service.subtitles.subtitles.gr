@@ -341,7 +341,7 @@ msgid "Translate fallback (English → Greek)"
 msgstr ""
 
 msgctxt "#30317"
-msgid "When no Greek subtitles are found, fetch English ones and machine-translate them. Slow (~1 minute), needs curl_cffi."
+msgid "Fetch English subtitles alongside Greek results and machine-translate them at download. Slow (~1 minute per download), needs curl_cffi."
 msgstr ""
 
 msgctxt "#30318"

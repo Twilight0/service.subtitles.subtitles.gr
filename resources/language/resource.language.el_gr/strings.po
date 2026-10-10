@@ -340,8 +340,8 @@ msgid "Translate fallback (English → Greek)"
 msgstr "Εφεδρική μετάφραση (Αγγλικά → Ελληνικά)"
 
 msgctxt "#30317"
-msgid "When no Greek subtitles are found, fetch English ones and machine-translate them. Slow (~1 minute), needs curl_cffi."
-msgstr "Όταν δε βρεθούν ελληνικοί υπότιτλοι, λήψη αγγλικών και αυτόματη μετάφραση. Αργό (~1 λεπτό), χρειάζεται curl_cffi."
+msgid "Fetch English subtitles alongside Greek results and machine-translate them at download. Slow (~1 minute per download), needs curl_cffi."
+msgstr "Λήψη αγγλικών υποτίτλων μαζί με τους ελληνικούς και αυτόματη μετάφρασή τους κατά τη λήψη. Αργό (~1 λεπτό ανά λήψη), χρειάζεται curl_cffi."
 
 msgctxt "#30318"
 msgid "Delete saved subtitles"
