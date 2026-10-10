@@ -5,6 +5,7 @@
 
 # Local-only development notes
 NOTES.md
+TODO.md
 # Byte-compiled python (Kodi regenerates these)
 __pycache__/
 
