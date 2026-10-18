@@ -56,6 +56,35 @@ def _addon_lib_base():
     return None
 
 
+def _is_android():
+
+    '''True when running on Android, where sys.platform still says linux.'''
+
+    try:
+        import xbmc
+
+        if xbmc.getCondVisibility('System.Platform.Android'):
+            return True
+    except Exception:
+        pass
+
+    try:
+        import platform as _plat
+
+        if 'android' in _plat.platform().lower():
+            return True
+
+        # bionic has no glibc version; gnu/linux always reports one.
+        libc, _ = _plat.libc_ver()
+
+        if sys.platform.startswith('linux') and not libc:
+            return True
+    except Exception:
+        pass
+
+    return False
+
+
 def _platform_dirs():
 
     '''Mirrors the platform layout of the curlcffi addon lib directory.'''
@@ -67,7 +96,18 @@ def _platform_dirs():
 
     dirs = []
 
-    if sys.platform.startswith('linux'):
+    if _is_android():
+        # Android first, always: sys.platform says linux and the machine
+        # says aarch64 here too, so without this the scan below picks the
+        # desktop glibc wrapper - unloadable on bionic - and its directory
+        # shadows the android one for the rest of the import.
+        if 'x86_64' in machine or 'amd64' in machine:
+            dirs.append('android_x86_64')
+        elif 'aarch64' in machine or 'arm64' in machine or 'armv8' in machine:
+            dirs.append('android_arm64-v8a')
+        else:
+            dirs.append('android_armeabi-v7a')
+    elif sys.platform.startswith('linux'):
         if 'aarch64' in machine or 'arm64' in machine or 'armv8' in machine:
             dirs.append('linux_aarch64')
         elif 'arm' in machine:
@@ -141,6 +181,32 @@ def _find_wrappers():
     return found
 
 
+def _ensure_package_on_path(wrappers):
+
+    '''
+    Puts the found wrapper's Python package on sys.path, and returns it.
+
+    The importable code lives two levels above the .so
+    (<plat>/<pytag>/curl_cffi/_wrapper.abi3.so -> <plat>/<pytag>), while Kodi
+    only puts the addon's bare lib/ on sys.path. Without this step a bare
+    `import curl_cffi` finds nothing even with the files on disk. This runs
+    everywhere the wrappers are found - including platforms whose loader has
+    no DEEPBIND, where the preload below is a no-op but the import still has
+    to work.
+    '''
+
+    for wrapper in wrappers:
+        package_dir = os.path.dirname(os.path.dirname(wrapper))
+
+        if os.path.isdir(os.path.join(package_dir, 'curl_cffi')):
+            if package_dir not in sys.path:
+                sys.path.insert(0, package_dir)
+
+            return wrapper
+
+    return None
+
+
 def _deepbind_preload():
 
     '''
@@ -152,14 +218,32 @@ def _deepbind_preload():
     target fails with return code 48 ("is not supported"). DEEPBIND puts the
     wrapper's own symbols first in its lookup scope, restoring rc=0.
 
+    Android's bionic loader has no RTLD_DEEPBIND, so there this is a no-op by
+    necessity: the wrapper is still dlopen'ed plainly (its own DT_NEEDED
+    entries resolve first for its private symbols), and the sys.path fix above
+    is what actually unblocks the import there.
+
     Must run before the first `import curl_cffi` of the process. If another
     invocation already loaded the wrapper without it, only a Kodi restart
     picks this up; the probe diagnostics will show it.
     '''
 
+    wrappers = _find_wrappers()
+
+    log_debug(
+        'Impersonate: {0} wrapper(s) on disk{1}'.format(
+            len(wrappers), ', first: ' + wrappers[0] if wrappers else ''
+        )
+    )
+
+    _ensure_package_on_path(wrappers)
+
     deepbind = getattr(os, 'RTLD_DEEPBIND', 0)
 
     if not deepbind:
+        if wrappers:
+            log_debug('Impersonate: no RTLD_DEEPBIND on this loader, plain dlopen')
+
         return None
 
     mode = os.RTLD_NOW | deepbind
@@ -177,7 +261,7 @@ def _deepbind_preload():
     except Exception:
         pass
 
-    for wrapper in _find_wrappers():
+    for wrapper in wrappers:
         try:
             # The handle is kept in _PRELOADED_HANDLES for the life of the
             # process. Without a live reference the loader could reclaim and
@@ -197,17 +281,14 @@ _PRELOADED_HANDLES = []
 
 _PRELOADED = _deepbind_preload()
 
-# If the addon ships its own copy, make sure the Python code comes from the
-# same build that was preloaded, not from a system site-packages copy.
-if _PRELOADED:
-    package_dir = os.path.dirname(os.path.dirname(_PRELOADED))
-
-    if package_dir not in sys.path:
-        sys.path.insert(0, package_dir)
-
 try:
     from curl_cffi import requests as _cr
-except Exception:
+except Exception as error:
+    log_debug(
+        'Impersonate: import failed ({0}: {1})'.format(
+            type(error).__name__, error
+        )
+    )
     _cr = None
 
 AVAILABLE = _cr is not None
@@ -334,10 +415,30 @@ def _pick_profile():
 
 def session(cookie=None, user_agent=None, timeout=25):
 
-    """Returns a curl_cffi session or None when unavailable."""
+    """Returns a curl_cffi session, a pure-Python fallback, or None.
+
+    The fallback only runs when curl_cffi cannot be imported - addon-dir .so
+    files sit on a noexec mount on Android and can never dlopen there. It is
+    a modernized stdlib handshake, not impersonation, and every caller already
+    treats the result the same way.
+    """
 
     if not AVAILABLE:
-        return None
+        try:
+            from resources.lib.utils import pytransport
+        except Exception:
+            try:
+                import pytransport
+            except Exception:
+                return None
+
+        log_debug('Impersonate: curl_cffi unavailable, pure-Python transport')
+
+        return pytransport.session(
+            cookie=cookie,
+            user_agent=user_agent or fake_user_agent(),
+            timeout=timeout
+        )
 
     try:
         profile = _pick_profile()

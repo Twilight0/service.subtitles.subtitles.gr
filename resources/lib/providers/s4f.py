@@ -81,6 +81,21 @@ class S4f:
 
         if 'not a bot' in result.lower() or 'Attention Required' in result or self._captcha(result):
             log_debug('S4f series search was challenged despite impersonation')
+            try:
+                ray = re.search(r'Ray ID:?\s*([0-9a-f]+)', result)
+                shown_ip = re.search(r'Your IP:\s*.*?([0-9]{1,3}(?:\.[0-9]{1,3}){3})', result)
+                log_debug('S4f block identifiers: ray={0} ip={1}'.format(
+                    ray.group(1) if ray else '?',
+                    shown_ip.group(1) if shown_ip else '?'
+                ))
+                dump = control.join(
+                    control.transPath('special://temp'), 's4f_challenge.html'
+                )
+                with open(dump, 'w', encoding='utf-8') as handle:
+                    handle.write('<!-- {0} -->\n{1}'.format(url, result))
+                log_debug('S4f challenge body dumped for inspection')
+            except Exception as error:
+                log_debug('S4f challenge dump failed: {0}'.format(error))
             return []
 
         entries = re.findall(

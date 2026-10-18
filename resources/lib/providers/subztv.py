@@ -23,7 +23,7 @@ from resources.lib.utils.tools import Cancelled, pick, cache_method, cache_durat
 from tulip import kodi as control
 from domparsers import parseDOM
 from tulip.cleantitle import replaceHTMLCodes
-from urllib.parse import quote_plus, unquote_plus, urlencode
+from urllib.parse import quote, quote_plus, unquote_plus, urlencode, urlsplit, urlunsplit
 from urllib.request import Request
 from tulip.log import log as log_debug
 
@@ -58,6 +58,17 @@ class Subztv:
         return build_opener(HTTPCookieProcessor(jar)), jar
 
     def _get(self, opener, url, referer=None, timeout=30):
+
+        # Scraped hrefs carry raw non-ASCII (Greek titles in paths) and sometimes
+        # arrive relative: quote the path once, centrally, so no caller can hand
+        # urllib a URL it can only encode as ascii. Query keys stay readable;
+        # only the path is requoted, and already-quoted %XX triplets survive.
+        try:
+            parts = urlsplit(url)
+            path = quote(unquote_plus(parts.path), safe='/%')
+            url = urlunsplit((parts.scheme, parts.netloc, path, parts.query, ''))
+        except Exception:
+            pass
 
         req = Request(url)
         req.add_header('User-Agent', self.user_agent)
