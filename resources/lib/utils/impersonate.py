@@ -415,26 +415,24 @@ def _pick_profile():
 
 def session(cookie=None, user_agent=None, timeout=25):
 
-    """Returns a curl_cffi session, a pure-Python fallback, or None.
+    """Returns a curl_cffi session, a shared-module fallback, or None.
 
     The fallback only runs when curl_cffi cannot be imported - addon-dir .so
     files sit on a noexec mount on Android and can never dlopen there. It is
-    a modernized stdlib handshake, not impersonation, and every caller already
-    treats the result the same way.
+    netclient's modernized stdlib handshake (Chrome150 cipher order, ALPN, no
+    legacy protocols), not impersonation, and every caller already treats the
+    result the same way.
     """
 
     if not AVAILABLE:
         try:
-            from resources.lib.utils import pytransport
+            from netclient import modern_session
         except Exception:
-            try:
-                import pytransport
-            except Exception:
-                return None
+            return None
 
-        log_debug('Impersonate: curl_cffi unavailable, pure-Python transport')
+        log_debug('Impersonate: curl_cffi unavailable, netclient modern transport')
 
-        return pytransport.session(
+        return modern_session(
             cookie=cookie,
             user_agent=user_agent or fake_user_agent(),
             timeout=timeout

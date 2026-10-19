@@ -5,7 +5,7 @@
         <import addon="script.module.tulip" version="4.1.6" />
         <import addon="script.module.parsers" version="1.0.0" />
         <import addon="script.module.unicache" version="1.0.2" />
-        <import addon="script.module.netclient" version="1.2.1" />
+        <import addon="script.module.netclient" version="1.3.0" />
         <import addon="script.module.fuzzywuzzy" version="0.17.0" />
         <import addon="script.module.curlcffi" version="0.16.4" optional="true" />
     </requires>
