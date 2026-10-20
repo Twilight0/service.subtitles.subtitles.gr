@@ -38,41 +38,21 @@
 				<setting id="s4f_series" type="boolean" label="30314" help="30291">
 					<level>0</level>
 					<default>true</default>
-					<dependencies>
-						<dependency type="enable">
-							<condition on="property" name="InfoBool">System.HasAddon(script.module.curlcffi)</condition>
-						</dependency>
-					</dependencies>
 					<control type="toggle"/>
 				</setting>
 				<setting id="subdl" type="boolean" label="30315" help="30292">
 					<level>0</level>
 					<default>true</default>
-					<dependencies>
-						<dependency type="enable">
-							<condition on="property" name="InfoBool">System.HasAddon(script.module.curlcffi)</condition>
-						</dependency>
-					</dependencies>
 					<control type="toggle"/>
 				</setting>
 				<setting id="addic7ed" type="boolean" label="30324" help="30325">
 					<level>0</level>
 					<default>true</default>
-					<dependencies>
-						<dependency type="enable">
-							<condition on="property" name="InfoBool">System.HasAddon(script.module.curlcffi)</condition>
-						</dependency>
-					</dependencies>
 					<control type="toggle"/>
 				</setting>
 				<setting id="translate" type="boolean" label="30316" help="30317">
 					<level>0</level>
 					<default>false</default>
-					<dependencies>
-						<dependency type="enable">
-							<condition on="property" name="InfoBool">System.HasAddon(script.module.curlcffi)</condition>
-						</dependency>
-					</dependencies>
 					<control type="toggle"/>
 				</setting>
 			</group>
@@ -131,6 +111,16 @@
 				<setting id="keep_subs" type="boolean" label="30004" help="30299">
 					<level>0</level>
 					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="browse_saved" type="boolean" label="30388" help="30389">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="keep_subs">true</condition>
+						</dependency>
+					</dependencies>
 					<control type="toggle"/>
 				</setting>
 			</group>
@@ -262,6 +252,14 @@
 				<setting id="delete_saved_action" type="action" label="30318" help="30319">
 					<level>0</level>
 					<data>RunScript(special://home/addons/service.subtitles.subtitles.gr/resources/lib/utils/delete_saved.py)</data>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="button" format="action"/>
+				</setting>
+				<setting id="add_greek_action" type="action" label="30383" help="30384">
+					<level>0</level>
+					<data>RunScript(special://home/addons/service.subtitles.subtitles.gr/resources/lib/utils/add_greek_language.py)</data>
 					<constraints>
 						<allowempty>true</allowempty>
 					</constraints>

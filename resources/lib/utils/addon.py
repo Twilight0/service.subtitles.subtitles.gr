@@ -495,6 +495,17 @@ class Search:
             # chosen ranking inside each language partition.
             self.list = sorted(self.list, key=_lang_rank)
 
+        if self._saved_available():
+
+            # Pinned above everything, after all sorting: it is an action,
+            # not a result. The download dispatch opens the file picker.
+            self.list.insert(0, {
+                'name': u'[BROWSE] {0}'.format(lang(30390)), 'url': '',
+                'source': 'browse', 'rating': 5, 'title': lang(30390),
+                'downloads': '0', 'hearing_imp': 'false',
+                'lang': 'Greek', 'thumb': 'el',
+            })
+
         for i in self.list:
 
             u = {'action': 'download', 'url': i['url'], 'source': i['source'],
@@ -539,6 +550,46 @@ class Search:
         words = set(re.sub(r'[^a-z0-9 ]+', ' ', stripped.lower()).split())
 
         return words, year, season, episode
+
+    @staticmethod
+    def _saved_folder():
+
+        '''Resolved output folder for kept subtitles, or empty.'''
+
+        try:
+            folder = control.setting('output_folder')
+
+            if folder.startswith('special://'):
+                folder = control.transPath(folder)
+
+            return folder
+        except Exception:
+            return ''
+
+    @classmethod
+    def _saved_available(cls):
+
+        '''True when kept subtitles exist to offer: saving on, opted in,
+        and at least one .srt/.sub already in the folder. All three gates
+        are checked live, so the entry never shows on an empty promise.'''
+
+        if control.setting('keep_subs') != 'true':
+            return False
+
+        if control.setting('browse_saved') != 'true':
+            return False
+
+        folder = cls._saved_folder()
+
+        if not folder:
+            return False
+
+        try:
+            _dirs, files = control.listDir(folder)
+        except Exception:
+            return False
+
+        return any(name.lower().endswith(('.srt', '.sub')) for name in files)
 
     def _saved_scan(self, query_text):
 
@@ -882,6 +933,26 @@ class Download:
                 subtitle = target
             else:
                 log_debug('Saved subtitle is gone: {0}'.format(target))
+
+        elif source == 'browse':
+
+            # Synthetic entry: let the user pick any local subtitle file,
+            # then treat it exactly like a saved one.
+            try:
+                import xbmcgui
+
+                picked = xbmcgui.Dialog().browseSingle(
+                    1, lang(30390), 'video',
+                    '.srt|.sub|.ssa|.ass', False, False, ''
+                )
+            except Exception:
+                picked = ''
+
+            if picked and exists(picked):
+                subtitle = picked
+            else:
+                log_debug('Browse entry dismissed or missing file')
+                cancelled = True
 
         elif source in tr_sources:
 

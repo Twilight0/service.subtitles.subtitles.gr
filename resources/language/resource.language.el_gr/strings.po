@@ -192,8 +192,8 @@ msgid "Downloading subtitle"
 msgstr "Λήψη υποτίτλων"
 
 msgctxt "#30284"
-msgid "Providers below need curl_cffi installed"
-msgstr "Οι παρακάτω πάροχοι χρειάζονται εγκατεστημένο το curl_cffi"
+msgid "The providers below require modern http requests[CR]Kodi 22 and up on Android[CR]or at least python 3.14 installed"
+msgstr "Οι παρακάτω πάροχοι απαιτούν σύγχρονα αιτήματα http[CR]Kodi 22 και πάνω σε Android[CR]ή τουλάχιστον εγκατεστημένη python 3.14"
 
 msgctxt "#30285"
 msgid "Search Subtitles.gr. The site is currently unreachable, so leave this off."
@@ -220,12 +220,12 @@ msgid "Search Moviesubtitles.org for Greek movie subtitles."
 msgstr "Αναζήτηση στο Moviesubtitles.org για ελληνικούς υπότιτλους ταινιών."
 
 msgctxt "#30291"
-msgid "Search Subs4Series for Greek series subtitles. Needs script.module.curlcffi installed."
-msgstr "Αναζήτηση στο Subs4Series για ελληνικούς υπότιτλους σειρών. Χρειάζεται εγκατεστημένο το script.module.curlcffi."
+msgid "Search Subs4Series for Greek series subtitles. Needs modern HTTPS requests."
+msgstr "Αναζήτηση στο Subs4Series για ελληνικούς υπότιτλους σειρών. Χρειάζεται σύγχρονα αιτήματα HTTPS."
 
 msgctxt "#30292"
-msgid "Search SubDL for Greek subtitles. Needs script.module.curlcffi installed."
-msgstr "Αναζήτηση στο SubDL για ελληνικούς υπότιτλους. Χρειάζεται εγκατεστημένο το script.module.curlcffi."
+msgid "Search SubDL for Greek subtitles. Needs modern HTTPS requests."
+msgstr "Αναζήτηση στο SubDL για ελληνικούς υπότιτλους. Χρειάζεται σύγχρονα αιτήματα HTTPS."
 
 msgctxt "#30293"
 msgid "Order of the subtitle results list."
@@ -276,8 +276,8 @@ msgid "Delete all cached search results. Use after provider changes."
 msgstr "Διαγραφή όλων των αποθηκευμένων αποτελεσμάτων. Χρήση μετά από αλλαγές παρόχων."
 
 msgctxt "#30307"
-msgid "Install the optional curl_cffi addon, needed by Subs4Series and SubDL."
-msgstr "Εγκατάσταση του προαιρετικού addon curl_cffi, που χρειάζονται τα Subs4Series και SubDL."
+msgid "Install the optional curl_cffi addon for older Kodi versions."
+msgstr "Εγκατάσταση του προαιρετικού addon curl_cffi για παλαιότερες εκδόσεις Kodi."
 
 msgctxt "#30308"
 msgid "Subtitles.gr"
@@ -316,8 +316,8 @@ msgid "Translate fallback (English → Greek)"
 msgstr "Εφεδρική μετάφραση (Αγγλικά → Ελληνικά)"
 
 msgctxt "#30317"
-msgid "Fetch English subtitles alongside Greek results and machine-translate them at download. Slow (~1 minute per download), needs curl_cffi."
-msgstr "Λήψη αγγλικών υποτίτλων μαζί με τους ελληνικούς και αυτόματη μετάφρασή τους κατά τη λήψη. Αργό (~1 λεπτό ανά λήψη), χρειάζεται curl_cffi."
+msgid "Fetch English subtitles alongside Greek results and machine-translate them at download. Slow (~1 minute per download). Needs modern HTTPS requests."
+msgstr "Λήψη αγγλικών υποτίτλων μαζί με τους ελληνικούς και αυτόματη μετάφρασή τους κατά τη λήψη. Αργό (~1 λεπτό ανά λήψη). Χρειάζεται σύγχρονα αιτήματα HTTPS."
 
 msgctxt "#30318"
 msgid "Delete saved subtitles"
@@ -570,3 +570,35 @@ msgstr "Λήψη του Violentmonkey από το Chrome Web Store"
 msgctxt "#30382"
 msgid "Or use the bookmarklet instead"
 msgstr "Ή χρησιμοποιήστε το bookmarklet"
+
+msgctxt "#30383"
+msgid "Add Greek to Kodi subtitle languages"
+msgstr "Προσθήκη ελληνικών στις γλώσσες υποτίτλων του Kodi"
+
+msgctxt "#30384"
+msgid "Adds Greek to the system subtitle language list, keeping what is already there."
+msgstr "Προσθέτει τα ελληνικά στη λίστα γλωσσών υποτίτλων του συστήματος, διατηρώντας ό,τι υπάρχει ήδη."
+
+msgctxt "#30385"
+msgid "Greek already in Kodi subtitle languages"
+msgstr "Τα ελληνικά υπάρχουν ήδη στις γλώσσες υποτίτλων του Kodi"
+
+msgctxt "#30386"
+msgid "Greek added to Kodi subtitle languages"
+msgstr "Τα ελληνικά προστέθηκαν στις γλώσσες υποτίτλων του Kodi"
+
+msgctxt "#30387"
+msgid "Could not update Kodi subtitle languages"
+msgstr "Αδυναμία ενημέρωσης γλωσσών υποτίτλων του Kodi"
+
+msgctxt "#30388"
+msgid "Offer saved subtitles first"
+msgstr "Προσφορά αποθηκευμένων υποτίτλων πρώτα"
+
+msgctxt "#30389"
+msgid "Show a Load local subtitle entry above results when saved subtitles exist."
+msgstr "Εμφάνιση καταχώρησης Φόρτωση τοπικού υπότιτλου πάνω από τα αποτελέσματα όταν υπάρχουν αποθηκευμένοι υπότιτλοι."
+
+msgctxt "#30390"
+msgid "Load local subtitle..."
+msgstr "Φόρτωση τοπικού υπότιτλου..."

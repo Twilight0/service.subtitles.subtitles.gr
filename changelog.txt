@@ -1,7 +1,11 @@
-[B]4.2.1[/B]
-- Kodi Piers minimum: xbmc.python 3.1.0, tulip 4.1.6, unicache 1.0.2, netclient 1.2.1. Piers ships Python 3.14 with OpenSSL 3.x, whose modern handshake passes bot checks without impersonation; older stacks stay on 4.2.0
-- Pure-Python transport fallback for hosts behind bot checks: when curl_cffi cannot be imported (Android addon dirs sit on a noexec mount and can never dlopen), requests go through netclient's modernized stdlib handshake (Chrome150 cipher order, ALPN, no legacy protocols) with the non-JS User-Agent; curl_cffi stays first choice wherever it loads
+[B]4.3.0[/B]
+- Transport without native modules: when curl_cffi cannot load (Android addon dirs sit on a noexec mount and can never dlopen), requests go through netclient 1.3.0's modernized stdlib handshake (Chrome150 cipher order, ALPN, no legacy protocols) with the non-JS User-Agent; curl_cffi stays first choice wherever it loads. Proven on Kodi 22 (Python 3.14 + OpenSSL 3.x), where the modern handshake passes bot checks with no impersonation at all
+- Provider toggles no longer gated on the curl_cffi addon: Subs4Series, SubDL, Addic7ed and Translate stay user-controlled, with a group note on what each setup needs
+- New action adds Greek to Kodi's own subtitle language list, keeping existing entries
+- New opt-in Load local subtitle entry above results when kept subtitles exist, opening Kodi's file picker for any .srt/.sub/.ssa/.ass
+- Kodi Nexus minimum (xbmc.python 3.0.1); module floors rolled forward (tulip 4.1.6, unicache 1.0.2, netclient 1.3.0)
 - SubZTV quotes scraped hrefs centrally, fixing the ascii-codec crash on non-ASCII episode URLs
+- Blocked Subs4Series searches log the Cloudflare Ray ID and egress IP and dump the challenge body to special://temp for inspection
 
 [B]4.2.0[/B]
 - Subs4Series downloads behind its per-request captcha now complete through a browser hand-off: the provider raises the gate, Kodi shows a dialog with a QR code and the listener address, you tick the captcha in your own browser and the bookmarklet (or the new userscript) carries the archive back; Kodi fetches it with the handed-over session and saves the subtitle. Proven on real downloads, including past the site's Anubis check

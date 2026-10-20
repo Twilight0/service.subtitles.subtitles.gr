@@ -193,7 +193,7 @@ msgid "Downloading subtitle"
 msgstr ""
 
 msgctxt "#30284"
-msgid "Providers below need curl_cffi installed"
+msgid "The providers below require modern http requests[CR]Kodi 22 and up on Android[CR]or at least python 3.14 installed"
 msgstr ""
 
 msgctxt "#30285"
@@ -221,11 +221,11 @@ msgid "Search Moviesubtitles.org for Greek movie subtitles."
 msgstr ""
 
 msgctxt "#30291"
-msgid "Search Subs4Series for Greek series subtitles. Needs script.module.curlcffi installed."
+msgid "Search Subs4Series for Greek series subtitles. Needs modern HTTPS requests."
 msgstr ""
 
 msgctxt "#30292"
-msgid "Search SubDL for Greek subtitles. Needs script.module.curlcffi installed."
+msgid "Search SubDL for Greek subtitles. Needs modern HTTPS requests."
 msgstr ""
 
 msgctxt "#30293"
@@ -277,7 +277,7 @@ msgid "Delete all cached search results. Use after provider changes."
 msgstr ""
 
 msgctxt "#30307"
-msgid "Install the optional curl_cffi addon, needed by Subs4Series and SubDL."
+msgid "Install the optional curl_cffi addon for older Kodi versions."
 msgstr ""
 
 msgctxt "#30308"
@@ -317,7 +317,7 @@ msgid "Translate fallback (English → Greek)"
 msgstr ""
 
 msgctxt "#30317"
-msgid "Fetch English subtitles alongside Greek results and machine-translate them at download. Slow (~1 minute per download), needs curl_cffi."
+msgid "Fetch English subtitles alongside Greek results and machine-translate them at download. Slow (~1 minute per download). Needs modern HTTPS requests."
 msgstr ""
 
 msgctxt "#30318"
@@ -571,3 +571,35 @@ msgstr ""
 msgctxt "#30382"
 msgid "Or use the bookmarklet instead"
 msgstr ""
+
+msgctxt "#30383"
+msgid "Add Greek to Kodi subtitle languages"
+msgstr "Add Greek to Kodi subtitle languages"
+
+msgctxt "#30384"
+msgid "Adds Greek to the system subtitle language list, keeping what is already there."
+msgstr "Adds Greek to the system subtitle language list, keeping what is already there."
+
+msgctxt "#30385"
+msgid "Greek already in Kodi subtitle languages"
+msgstr "Greek already in Kodi subtitle languages"
+
+msgctxt "#30386"
+msgid "Greek added to Kodi subtitle languages"
+msgstr "Greek added to Kodi subtitle languages"
+
+msgctxt "#30387"
+msgid "Could not update Kodi subtitle languages"
+msgstr "Could not update Kodi subtitle languages"
+
+msgctxt "#30388"
+msgid "Offer saved subtitles first"
+msgstr "Offer saved subtitles first"
+
+msgctxt "#30389"
+msgid "Show a Load local subtitle entry above results when saved subtitles exist."
+msgstr "Show a Load local subtitle entry above results when saved subtitles exist."
+
+msgctxt "#30390"
+msgid "Load local subtitle..."
+msgstr "Load local subtitle..."
